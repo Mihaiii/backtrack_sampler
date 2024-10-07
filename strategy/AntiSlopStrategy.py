@@ -48,14 +48,14 @@ class AntiSlopStrategy(BacktrackStrategy):
 
     def _tokenize_slop_variants(self) -> list[list[int]]:
         token_sequences = []
-        for word in self.slop_phrase_prob_adjustments.items():
+        for slop in self.slops:
             variants = [
-                word.lower(),
-                word.capitalize(),
-                word.upper(),
-                f" {word.lower()}",
-                f" {word.capitalize()}",
-                f" {word.upper()}",
+                slop.lower(),
+                slop.capitalize(),
+                slop.upper(),
+                f" {slop.lower()}",
+                f" {slop.capitalize()}",
+                f" {slop.upper()}",
             ]
             for variant in variants:
                 token_ids = self.tokenizer.encode(variant, add_special_tokens=False)
