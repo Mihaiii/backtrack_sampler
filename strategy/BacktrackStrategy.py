@@ -16,13 +16,13 @@ class BacktrackStrategy(ABC):
         pass
 
     @abstractmethod
-    def on_logits(self, logits: torch.FloatTensor, position: int) -> torch.FloatTensor:
+    def on_logits(self, logits: torch.FloatTensor, generated_sequence: List[int], position: int) -> torch.FloatTensor:
         pass
 
     @abstractmethod
-    def on_probs(self, probs: torch.FloatTensor, position: int) -> torch.FloatTensor:
+    def on_probs(self, probs: torch.FloatTensor, generated_sequence: List[int], position: int) -> torch.FloatTensor:
         pass
 
     @abstractmethod
-    def on_next_token(self, token: int, position: int) -> None:
+    def on_next_token(self, token: int, generated_sequence: List[int], position: int) -> None:
         pass

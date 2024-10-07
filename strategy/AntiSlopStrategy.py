@@ -16,8 +16,7 @@ class AntiSlopStrategy(BacktrackStrategy):
         self.tokenized_slops = self._tokenize_slop_variants()
         self.max_tokenized_slop = max(len(seq) for seq in self.tokenized_slops)
 
-        #TODO: I'm not sure about this datastructure. I might want something in the base class for this.
-        self.logit_cache = []
+        self.slop_start_pos = None
 
     def get_checkpoint_index(self) -> int:
         return self._checkpoint_index
@@ -29,39 +28,22 @@ class AntiSlopStrategy(BacktrackStrategy):
                   generated_sequence: List[int], 
                   current_position: int, 
                   past_key_values: Optional[Tuple[Tuple[torch.Tensor, ...], ...]]) -> Tuple[List[int], int, Optional[Tuple[Tuple[torch.Tensor, ...], ...]]]:
-        start_pos = self._detect_slops(generated_sequence[-self._checkpoint_index:])
-        if start_pos is not None:
+        self.slop_start_pos = self._detect_slops(generated_sequence[-self._checkpoint_index:])
+        if self.slop_start_pos is not None:
             initial_position = current_position
 
-            while current_position > start_pos:
+            while current_position > self.slop_start_pos:
                 generated_sequence.pop()
                 current_position -= 1
-
-            to_del = [key for key in self.logit_cache if key > start_pos]
-            for key in to_del:
-                del self.logit_cache[key]
 
             if past_key_values:
                 past_key_values = tuple(tuple(layer[:, :, :current_position - initial_position, :] for layer in kv_pair) for kv_pair in past_key_values)
 
         return generated_sequence, current_position, past_key_values
 
-    def on_logits(self, logits: torch.Tensor, position: int) -> torch.Tensor:
-        #TODO: this won't do - rewrite logic
-        if position < len(self.logit_cache):
-            cached_entry = self.logit_cache[position]
-            cached_logits = cached_entry['logits']
-            
-            for token_id in cached_entry['skip']:
-                cached_logits[:, token_id] = float('-inf')
-
-            logits = cached_logits.clone()
-        else:
-            self.logit_cache.append({
-                'logits': logits.clone(),
-                'skip': []
-            })
-
+    def on_logits(self, logits: torch.Tensor, generated_sequence: List[int], position: int) -> torch.Tensor:
+        if self.slop_start_pos is not None:
+            logits[:, generated_sequence[self.slop_start_pos]] = float('-inf')
         return logits
 
     def _tokenize_slop_variants(self) -> list[list[int]]:
@@ -92,8 +74,8 @@ class AntiSlopStrategy(BacktrackStrategy):
         return min_index
     
 
-    def on_probs(self, probs: torch.FloatTensor, position: int) -> torch.FloatTensor:
+    def on_probs(self, probs: torch.FloatTensor, generated_sequence: List[int], position: int) -> torch.FloatTensor:
         return probs
 
-    def on_next_token(self, token: int, position: int) -> None:
+    def on_next_token(self, token: int, generated_sequence: List[int], position: int) -> None:
         pass
