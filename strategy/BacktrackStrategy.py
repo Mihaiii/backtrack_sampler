@@ -1,5 +1,6 @@
-from abc import ABC, abstractmethod
 import torch
+from abc import ABC, abstractmethod
+from typing import List, Optional, Tuple
 
 class BacktrackStrategy(ABC):
     @abstractmethod
@@ -11,9 +12,17 @@ class BacktrackStrategy(ABC):
         pass
 
     @abstractmethod
-    def backtrack(self, generated_sequence: list[int], current_position: int) -> tuple[list[int], int]:
+    def backtrack(self, generated_sequence: list[int], current_position: int) -> Tuple[List[int], int, Optional[Tuple[Tuple[torch.Tensor, ...], ...]]]:
         pass
 
     @abstractmethod
-    def on_logits(self, logits: torch.Tensor, position: int) -> torch.Tensor:
+    def on_logits(self, logits: torch.FloatTensor, position: int) -> torch.FloatTensor:
+        pass
+
+    @abstractmethod
+    def on_probs(self, probs: torch.FloatTensor, position: int) -> torch.FloatTensor:
+        pass
+
+    @abstractmethod
+    def on_next_token(self, token: int, position: int) -> None:
         pass

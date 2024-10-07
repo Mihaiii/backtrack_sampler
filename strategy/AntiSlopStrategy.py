@@ -1,5 +1,5 @@
 import torch
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from transformers import PreTrainedTokenizer
 from .BacktrackStrategy import BacktrackStrategy
 
@@ -7,17 +7,17 @@ class AntiSlopStrategy(BacktrackStrategy):
     def __init__(
         self,
         tokenizer: PreTrainedTokenizer,
-        slop_phrase_prob_adjustments: List[str]
+        slops: List[str]
     ):
         self.tokenizer = tokenizer
-        self.slop_phrase_prob_adjustments = slop_phrase_prob_adjustments
+        self.slops = slops
         self._checkpoint_index = 0
 
         self.tokenized_slops = self._tokenize_slop_variants()
         self.max_tokenized_slop = max(len(seq) for seq in self.tokenized_slops)
 
+        #TODO: I'm not sure about this datastructure. I might want something in the base class for this.
         self.logit_cache = []
-        self.downregulated_positions = {}
 
     def get_checkpoint_index(self) -> int:
         return self._checkpoint_index
@@ -25,12 +25,15 @@ class AntiSlopStrategy(BacktrackStrategy):
     def on_new_position_increment(self, current_position: int) -> None:
         self._checkpoint_index = max(current_position - self.max_tokenized_slop, 0)
 
-    def backtrack(self, generated_sequence: list[int], current_position: int, past_key_values) -> tuple[list[int], int]:
-        start_pos = self._detect_slops(generated_sequence[-self.get_checkpoint_index():])
+    def backtrack(self, 
+                  generated_sequence: List[int], 
+                  current_position: int, 
+                  past_key_values: Optional[Tuple[Tuple[torch.Tensor, ...], ...]]) -> Tuple[List[int], int, Optional[Tuple[Tuple[torch.Tensor, ...], ...]]]:
+        start_pos = self._detect_slops(generated_sequence[-self._checkpoint_index:])
         if start_pos is not None:
             initial_position = current_position
 
-            while start_pos != current_position:
+            while current_position > start_pos:
                 generated_sequence.pop()
                 current_position -= 1
 
@@ -44,6 +47,7 @@ class AntiSlopStrategy(BacktrackStrategy):
         return generated_sequence, current_position, past_key_values
 
     def on_logits(self, logits: torch.Tensor, position: int) -> torch.Tensor:
+        #TODO: this won't do - rewrite logic
         if position < len(self.logit_cache):
             cached_entry = self.logit_cache[position]
             cached_logits = cached_entry['logits']
@@ -86,3 +90,10 @@ class AntiSlopStrategy(BacktrackStrategy):
                         min_index = i
                     break  # Found the first occurrence, move to next slop
         return min_index
+    
+
+    def on_probs(self, probs: torch.FloatTensor, position: int) -> torch.FloatTensor:
+        return probs
+
+    def on_next_token(self, token: int, position: int) -> None:
+        pass

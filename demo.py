@@ -8,7 +8,7 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name)
 device = torch.device('cuda')
 
-slop_phrase_prob_adjustments = [
+slops = [
     'kaleidoscope',
     'symphony',
     'testament to',
@@ -20,14 +20,14 @@ messages = [
     {"role": "user", "content": prompt_text}
 ]
 prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-strategy = AntiSlopStrategy(tokenizer, slop_phrase_prob_adjustments)
+strategy = AntiSlopStrategy(tokenizer, slops)
 sampler = BacktrackSampler(model, tokenizer, strategy, device)
 
-token_stream = sampler.generate_stream(
+token_stream = sampler.generate(
     prompt=prompt,
     max_new_tokens=128,
     temperature=1
 )
 
 for tokens in token_stream:
-    print(tokenizer.decode(tokens, skip_special_tokens=True))
+    print(tokenizer.decode(tokens, skip_special_tokens=True), end="", flush=True)
