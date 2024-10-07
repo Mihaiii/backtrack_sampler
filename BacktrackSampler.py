@@ -31,7 +31,7 @@ class BacktrackSampler:
         
         input_ids = self.tokenizer.encode(prompt, return_tensors="pt").to(self.device)
         generated_sequence = input_ids[0].tolist()
-        yield generated_sequence
+        continuation_tokens = []
         current_position = 0
         released_position = 0
         past_key_values = None
@@ -71,21 +71,22 @@ class BacktrackSampler:
             next_token_logits = next_token_logits / temperature
 
             # Opportunity to apply strategy-specific penalty
-            next_token_logits = self.strategy.on_logits(next_token_logits, generated_sequence, current_position)
+            next_token_logits = self.strategy.on_logits(next_token_logits, continuation_tokens, current_position)
             
             # Apply min_p, top-k and top-p filtering
             filtered_logits = self._filter_logits(next_token_logits, top_k, top_p, min_p)
 
             probs = torch.softmax(filtered_logits, dim=-1)
             
-            probs = self.strategy.on_probs(probs, generated_sequence, current_position)
+            probs = self.strategy.on_probs(probs, continuation_tokens, current_position)
             
             next_token = torch.multinomial(probs, num_samples=1).item()
 
-            self.strategy.on_next_token(next_token, generated_sequence, current_position)
+            self.strategy.on_next_token(next_token, continuation_tokens, current_position)
             
-            generated_sequence.append(next_token)
             current_position += 1
+            generated_sequence.append(next_token)
+            continuation_tokens = generated_sequence[-current_position:]
             self.strategy.on_new_position_increment(current_position)
 
             if released_position < self.strategy.get_checkpoint_index():
@@ -96,7 +97,11 @@ class BacktrackSampler:
                 break
 
             # Apply backtracking if necessary
-            generated_sequence, current_position, past_key_values = self.strategy.backtrack(generated_sequence, current_position, past_key_values)
+            initial_position = current_position
+            current_position, past_key_values = self.strategy.backtrack(continuation_tokens, current_position, past_key_values)
+            if(current_position < initial_position):
+                generated_sequence = generated_sequence[:current_position-initial_position]
+                continuation_tokens = generated_sequence[-current_position:]
 
         del past_key_values
 

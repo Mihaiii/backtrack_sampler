@@ -12,17 +12,17 @@ class BacktrackStrategy(ABC):
         pass
 
     @abstractmethod
-    def backtrack(self, generated_sequence: list[int], current_position: int) -> Tuple[List[int], int, Optional[Tuple[Tuple[torch.Tensor, ...], ...]]]:
+    def backtrack(self, continuation_tokens: list[int], current_position: int) -> Tuple[int, Optional[Tuple[Tuple[torch.Tensor, ...], ...]]]:
         pass
 
     @abstractmethod
-    def on_logits(self, logits: torch.FloatTensor, generated_sequence: List[int], position: int) -> torch.FloatTensor:
+    def on_logits(self, logits: torch.FloatTensor, continuation_tokens: List[int], position: int) -> torch.FloatTensor:
         pass
 
     @abstractmethod
-    def on_probs(self, probs: torch.FloatTensor, generated_sequence: List[int], position: int) -> torch.FloatTensor:
+    def on_probs(self, probs: torch.FloatTensor, continuation_tokens: List[int], position: int) -> torch.FloatTensor:
         pass
 
     @abstractmethod
-    def on_next_token(self, token: int, generated_sequence: List[int], position: int) -> None:
+    def on_next_token(self, token: int, continuation_tokens: List[int], position: int) -> None:
         pass
