@@ -1,5 +1,5 @@
 import torch
-from typing import Dict, Tuple, Set
+from typing import List, Optional
 from transformers import PreTrainedTokenizer
 from .BacktrackStrategy import BacktrackStrategy
 
@@ -7,89 +7,62 @@ class AntiSlopStrategy(BacktrackStrategy):
     def __init__(
         self,
         tokenizer: PreTrainedTokenizer,
-        slop_phrase_prob_adjustments: Dict[str, float],
-        adjustment_strength: float = 1.0
+        slop_phrase_prob_adjustments: List[str]
     ):
         self.tokenizer = tokenizer
         self.slop_phrase_prob_adjustments = slop_phrase_prob_adjustments
-        self.adjustment_strength = adjustment_strength
-        self._past_distributions_to_keep = 0
+        self._checkpoint_index = 0
 
-        self.token_sequences = self._prepare_token_sequences()
-        self.max_sequence_length = max(len(seq) for seq in self.token_sequences.keys())
-        self.starting_tokens_lookup = self._precompute_starting_tokens()
+        self.tokenized_slops = self._tokenize_slop_variants()
+        self.max_tokenized_slop = max(len(seq) for seq in self.tokenized_slops)
 
-        self.logit_cache = {}
+        self.logit_cache = []
         self.downregulated_positions = {}
 
-    @property
-    def past_distributions_to_keep(self) -> int:
-        return self._past_distributions_to_keep
+    def get_checkpoint_index(self) -> int:
+        return self._checkpoint_index
+    
+    def on_new_position_increment(self, current_position: int) -> None:
+        self._checkpoint_index = max(current_position - self.max_tokenized_slop, 0)
 
-    def backtrack(self, generated_sequence: list[int], current_position: int) -> tuple[list[int], int]:
-        matched_sequence, start_pos = self._detect_disallowed_sequence(generated_sequence)
-        if matched_sequence:
-            # Backtrack: remove tokens from the generated_sequence that are part of the disallowed sequence
-            for _ in range(len(matched_sequence)):
+    def backtrack(self, generated_sequence: list[int], current_position: int, past_key_values) -> tuple[list[int], int]:
+        start_pos = self._detect_slops(generated_sequence[-self.get_checkpoint_index():])
+        if start_pos is not None:
+            initial_position = current_position
+
+            while start_pos != current_position:
                 generated_sequence.pop()
                 current_position -= 1
 
-            # Clear the logit_cache ahead of start_pos since we've backtracked
             to_del = [key for key in self.logit_cache if key > start_pos]
             for key in to_del:
                 del self.logit_cache[key]
 
-        return generated_sequence, current_position
+            if past_key_values:
+                past_key_values = tuple(tuple(layer[:, :, :current_position - initial_position, :] for layer in kv_pair) for kv_pair in past_key_values)
 
-    def apply_penalty(self, logits: torch.Tensor, position: int) -> torch.Tensor:
-        if position in self.logit_cache:
-            cached_logits = self.logit_cache[position]
+        return generated_sequence, current_position, past_key_values
+
+    def on_logits(self, logits: torch.Tensor, position: int) -> torch.Tensor:
+        if position < len(self.logit_cache):
+            cached_entry = self.logit_cache[position]
+            cached_logits = cached_entry['logits']
             
-            # Apply downregulation for slop phrases
-            if position in self.downregulated_positions:
-                for sequence in self.downregulated_positions[position]:
-                    adjustment = self.token_sequences[sequence]
-                    starting_tokens = self.starting_tokens_lookup.get(sequence, set())
-                    for token_id in starting_tokens:
-                        cached_logits[:, token_id] *= adjustment ** self.adjustment_strength
+            for token_id in cached_entry['skip']:
+                cached_logits[:, token_id] = float('-inf')
 
             logits = cached_logits.clone()
         else:
-            self.logit_cache[position] = logits.clone()
+            self.logit_cache.append({
+                'logits': logits.clone(),
+                'skip': []
+            })
 
         return logits
 
-    def clean_kv_cache(self, past_key_values: tuple, current_position: int) -> tuple:
-        # Clean up the logits cache
-        to_del = [key for key in self.logit_cache if key < current_position - self.past_distributions_to_keep]
-        for key in to_del:
-            del self.logit_cache[key]
-        
-        # Truncate past_key_values if necessary
-        if past_key_values:
-            return tuple(tuple(layer[:, :, max(0, current_position - self.past_distributions_to_keep):, :] for layer in kv_pair) for kv_pair in past_key_values)
-        return past_key_values
-
-    def _prepare_token_sequences(self) -> Dict[Tuple[int, ...], float]:
-        token_sequences = {}
-        for word, prob_adjustment_factor in self.slop_phrase_prob_adjustments.items():
-            variants = [
-                word.lower(),
-                word.capitalize(),
-                word.upper(),
-                f" {word.lower()}",
-                f" {word.capitalize()}",
-                f" {word.upper()}",
-            ]
-            for variant in variants:
-                token_ids = tuple(self.tokenizer.encode(variant, add_special_tokens=False))
-                if token_ids:
-                    token_sequences[token_ids] = prob_adjustment_factor
-        return token_sequences
-
-    def _precompute_starting_tokens(self) -> Dict[Tuple[int, ...], Set[int]]:
-        starting_tokens_lookup = {}
-        for word in self.slop_phrase_prob_adjustments.keys():
+    def _tokenize_slop_variants(self) -> list[list[int]]:
+        token_sequences = []
+        for word in self.slop_phrase_prob_adjustments.items():
             variants = [
                 word.lower(),
                 word.capitalize(),
@@ -100,24 +73,16 @@ class AntiSlopStrategy(BacktrackStrategy):
             ]
             for variant in variants:
                 token_ids = self.tokenizer.encode(variant, add_special_tokens=False)
-                starting_tokens = set()
                 if token_ids:
-                    starting_tokens.add(token_ids[0])
-                    first_token_decoded = self.tokenizer.decode(token_ids[0], skip_special_tokens=True)
-                    for i in range(len(first_token_decoded) - 1):
-                        prefix = first_token_decoded[:-(i + 1)]
-                        encoded_prefix = self.tokenizer.encode(prefix, add_special_tokens=False)
-                        if encoded_prefix:
-                            starting_tokens.add(encoded_prefix[0])
-                    starting_tokens_lookup[tuple(token_ids)] = starting_tokens
-        return starting_tokens_lookup
+                    token_sequences.append(token_ids)
+        return token_sequences
 
-    def _detect_disallowed_sequence(self, generated_sequence: list[int]) -> Tuple[Tuple[int, ...], int]:
-        for seq_length in range(self.max_sequence_length, 0, -1):            
-            if len(generated_sequence) < seq_length:
-                continue
-            candidate_sequence = tuple(generated_sequence[-seq_length:])
-            if candidate_sequence in self.token_sequences:
-                start_pos = len(generated_sequence) - seq_length
-                return candidate_sequence, start_pos
-        return None, -1
+    def _detect_slops(self, seq_since_checkpoint: List[int]) -> Optional[int]:
+        min_index = None
+        for slop in self.tokenized_slops:
+            for i in range(len(seq_since_checkpoint) - len(slop) + 1):
+                if seq_since_checkpoint[i:i+len(slop)] == slop:
+                    if min_index is None or i < min_index:
+                        min_index = i
+                    break  # Found the first occurrence, move to next slop
+        return min_index

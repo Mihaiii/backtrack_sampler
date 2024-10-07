@@ -2,9 +2,12 @@ from abc import ABC, abstractmethod
 import torch
 
 class BacktrackStrategy(ABC):
-    @property
     @abstractmethod
-    def past_distributions_to_keep(self) -> int:
+    def get_checkpoint_index(self) -> int:
+        pass
+
+    @abstractmethod
+    def on_new_position_increment(self) -> None:
         pass
 
     @abstractmethod
@@ -12,9 +15,5 @@ class BacktrackStrategy(ABC):
         pass
 
     @abstractmethod
-    def apply_penalty(self, logits: torch.Tensor, position: int) -> torch.Tensor:
-        pass
-
-    @abstractmethod
-    def clean_kv_cache(self, past_key_values: tuple, current_position: int) -> tuple:
+    def on_logits(self, logits: torch.Tensor, position: int) -> torch.Tensor:
         pass

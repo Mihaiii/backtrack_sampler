@@ -1,6 +1,5 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from typing import List, Dict, Union, Generator
 from BacktrackSampler import BacktrackSampler
 from strategy.AntiSlopStrategy import AntiSlopStrategy
 
@@ -9,13 +8,13 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name)
 device = torch.device('cuda')
 
-slop_phrase_prob_adjustments = {
-    'kaleidoscope': 0.5,
-    'symphony': 0.5,
-    'testament to': 0.5,
-    'elara': 0.5,
-    'moth to a flame': 0.5
-}
+slop_phrase_prob_adjustments = [
+    'kaleidoscope',
+    'symphony',
+    'testament to',
+    'elara',
+    'moth to a flame'
+]
 prompt_text = "Write a story about Elara, the weaver of tapestries in future Technopolis. In the bustling city, a group of "
 messages = [
     {"role": "user", "content": prompt_text}
