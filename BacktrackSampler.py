@@ -30,22 +30,23 @@ class BacktrackSampler:
     ) -> Generator[List[int], None, None]:
         
         input_ids = self.tokenizer.encode(prompt, return_tensors="pt").to(self.device)
-        generated_sequence = input_ids[0].tolist()
+        input_tokens = input_ids[0].tolist()
         continuation_tokens = []
-        current_position = 0
-        released_position = 0
+        released_index = 0
         past_key_values = None
 
         while True:
+            generated_sequence = input_tokens + continuation_tokens
+            nr_new_tokens = len(continuation_tokens)
             if max_length is not None and len(generated_sequence) >= max_length:
-                if released_position < current_position:
-                    for token in generated_sequence[released_position-current_position:]:
+                if released_index < nr_new_tokens:
+                    for token in generated_sequence[released_index-nr_new_tokens:]:
                         yield token                
                 break
             
-            if max_new_tokens is not None and current_position >= max_new_tokens:
-                if released_position < current_position:
-                    for token in generated_sequence[released_position-current_position:]:
+            if max_new_tokens is not None and nr_new_tokens >= max_new_tokens:
+                if released_index < nr_new_tokens:
+                    for token in generated_sequence[released_index-nr_new_tokens:]:
                         yield token
                 break
 
@@ -71,37 +72,29 @@ class BacktrackSampler:
             next_token_logits = next_token_logits / temperature
 
             # Opportunity to apply strategy-specific penalty
-            next_token_logits = self.strategy.on_logits(next_token_logits, continuation_tokens, current_position)
+            next_token_logits = self.strategy.on_logits(next_token_logits, continuation_tokens)
             
             # Apply min_p, top-k and top-p filtering
             filtered_logits = self._filter_logits(next_token_logits, top_k, top_p, min_p)
 
             probs = torch.softmax(filtered_logits, dim=-1)
             
-            probs = self.strategy.on_probs(probs, continuation_tokens, current_position)
+            probs = self.strategy.on_probs(probs, continuation_tokens)
             
             next_token = torch.multinomial(probs, num_samples=1).item()
-
-            self.strategy.on_next_token(next_token, continuation_tokens, current_position)
             
-            current_position += 1
-            generated_sequence.append(next_token)
-            continuation_tokens = generated_sequence[-current_position:]
-            self.strategy.on_new_position_increment(current_position)
+            continuation_tokens.append(next_token)
+            self.strategy.on_next_token(continuation_tokens)
 
-            if released_position < self.strategy.get_checkpoint_index():
+            while released_index < self.strategy.get_release_index():
                 yield next_token
-                released_position = self.strategy.get_checkpoint_index()
+                released_index += 1
 
             if next_token == self.tokenizer.eos_token_id:
                 break
 
             # Apply backtracking if necessary
-            initial_position = current_position
-            current_position, past_key_values = self.strategy.backtrack(continuation_tokens, current_position, past_key_values)
-            if(current_position < initial_position):
-                generated_sequence = generated_sequence[:current_position-initial_position]
-                continuation_tokens = generated_sequence[-current_position:]
+            continuation_tokens, past_key_values = self.strategy.backtrack(continuation_tokens, past_key_values)
 
         del past_key_values
 

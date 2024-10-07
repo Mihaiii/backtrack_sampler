@@ -3,12 +3,12 @@ from .BacktrackStrategy import BacktrackStrategy
 
 class AntiFlattenDistributionStrategy(BacktrackStrategy):
     def __init__(self, adjustment_strength: float = 1.0):
-        self._checkpoint_index = 0
+        self._release_index = 0
         self.adjustment_strength = adjustment_strength
         self.logit_cache = {}
 
-    def get_checkpoint_index(self) -> int:
-        return self._checkpoint_index
+    def get_release_index(self) -> int:
+        return self._release_index
 
     def on_new_position_increment(self) -> None:
         pass
