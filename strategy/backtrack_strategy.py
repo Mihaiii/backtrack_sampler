@@ -5,6 +5,11 @@ from typing import List, Optional, Tuple
 class BacktrackStrategy(ABC):
     @abstractmethod
     def get_release_index(self) -> int:
+        """
+        Everything up until (but not included) this index (meaning it starts with 0)
+        is considered valid token generation that can't be rollbacked and therefore
+        can be sent to the client for its use.
+        """
         pass
 
     @abstractmethod

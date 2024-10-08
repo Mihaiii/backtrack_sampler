@@ -89,8 +89,8 @@ class BacktrackSampler:
             # Apply backtracking if necessary
             continuation_tokens, past_key_values = self.strategy.backtrack(continuation_tokens, past_key_values)
 
-            while released_index < self.strategy.get_release_index():
-                yield next_token
+            while released_index < self.strategy.get_release_index() - 1:
+                yield continuation_tokens[released_index]
                 released_index += 1
 
             if next_token == self.tokenizer.eos_token_id:
