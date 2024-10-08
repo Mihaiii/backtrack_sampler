@@ -26,7 +26,9 @@ class BacktrackSampler:
         top_k: int = None,
         top_p: float = None,
         min_p: float = None,
-        use_cache: bool = True
+        use_cache: bool = True, 
+        *args, 
+        **kwargs
     ) -> Generator[List[int], None, None]:
         
         input_ids = self.tokenizer.encode(prompt, return_tensors="pt").to(self.device)
@@ -61,13 +63,15 @@ class BacktrackSampler:
                 output_scores=True,
                 use_cache=use_cache,
                 past_key_values=past_key_values if use_cache else None,
+                *args,
+                **kwargs
             )
 
             if use_cache:
                 past_key_values = outputs.past_key_values
 
             next_token_logits = outputs.scores[0]
-            next_token_logits = next_token_logits / temperature
+            next_token_logits = next_token_logits / max(temperature, 1e-8)
 
             # Opportunity to apply strategy-specific penalty
             next_token_logits = self.strategy.on_logits(next_token_logits, continuation_tokens)
