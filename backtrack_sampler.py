@@ -39,15 +39,13 @@ class BacktrackSampler:
             generated_sequence = input_tokens + continuation_tokens
             nr_new_tokens = len(continuation_tokens)
             if max_length is not None and len(generated_sequence) >= max_length:
-                if release_index < nr_new_tokens:
-                    for token in generated_sequence[release_index-nr_new_tokens:]:
-                        yield token                
+                for token in continuation_tokens[release_index:]:
+                    yield token           
                 break
             
             if max_new_tokens is not None and nr_new_tokens >= max_new_tokens:
-                if release_index < nr_new_tokens:
-                    for token in generated_sequence[release_index-nr_new_tokens:]:
-                        yield token
+                for token in continuation_tokens[release_index:]:
+                    yield token
                 break
 
             current_input_ids = torch.tensor([generated_sequence], device=self.device)
