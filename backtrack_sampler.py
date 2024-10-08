@@ -32,21 +32,21 @@ class BacktrackSampler:
         input_ids = self.tokenizer.encode(prompt, return_tensors="pt").to(self.device)
         input_tokens = input_ids[0].tolist()
         continuation_tokens = []
-        released_index = 0
+        release_index = 0
         past_key_values = None
 
         while True:
             generated_sequence = input_tokens + continuation_tokens
             nr_new_tokens = len(continuation_tokens)
             if max_length is not None and len(generated_sequence) >= max_length:
-                if released_index < nr_new_tokens:
-                    for token in generated_sequence[released_index-nr_new_tokens:]:
+                if release_index < nr_new_tokens:
+                    for token in generated_sequence[release_index-nr_new_tokens:]:
                         yield token                
                 break
             
             if max_new_tokens is not None and nr_new_tokens >= max_new_tokens:
-                if released_index < nr_new_tokens:
-                    for token in generated_sequence[released_index-nr_new_tokens:]:
+                if release_index < nr_new_tokens:
+                    for token in generated_sequence[release_index-nr_new_tokens:]:
                         yield token
                 break
 
@@ -89,12 +89,12 @@ class BacktrackSampler:
             # Apply backtracking if necessary
             continuation_tokens, past_key_values = self.strategy.backtrack(continuation_tokens, past_key_values)
 
-            while released_index < self.strategy.get_release_index() - 1:
-                yield continuation_tokens[released_index]
-                released_index += 1
+            while release_index < self.strategy.get_keep_index() - 1:
+                yield continuation_tokens[release_index]
+                release_index += 1
 
             if next_token == self.tokenizer.eos_token_id:
-                for token in continuation_tokens[released_index:]:
+                for token in continuation_tokens[release_index:]:
                     yield token
                 break
 

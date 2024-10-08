@@ -8,12 +8,12 @@ class AntiSlopStrategy(BacktrackStrategy):
         self,
         tokenizer: PreTrainedTokenizer,
         slops: List[str],
-        release_index_buffer: int = 5
+        keep_index_buffer: int = 5
     ):
         self.tokenizer = tokenizer
         self.slops = slops
-        self.release_index_buffer = release_index_buffer
-        self._release_index = 0
+        self.keep_index_buffer = keep_index_buffer
+        self._keep_index = 0
 
         self.tokenized_slops = self._tokenize_slop_variants()
         self.max_tokenized_slop = max(len(seq) for seq in self.tokenized_slops)
@@ -22,14 +22,14 @@ class AntiSlopStrategy(BacktrackStrategy):
         # We need this in order to avoid an infinite loop where multiple different slops are generated from the same position
         # Basically we'll put all starting positions to -inf, not only the latest found.
         self.found_slop_tokens = {} 
-    def get_release_index(self) -> int:
-        return self._release_index
+    def get_keep_index(self) -> int:
+        return self._keep_index
     
-    def _update_release_index(self, continuation_tokens: List[int]) -> None:
-        self._release_index = max(len(continuation_tokens) - self.max_tokenized_slop - self.release_index_buffer, 0)
+    def _update_keep_index(self, continuation_tokens: List[int]) -> None:
+        self._keep_index = max(len(continuation_tokens) - self.max_tokenized_slop - self.keep_index_buffer, 0)
         
     def on_next_token(self, continuation_tokens: List[int], probs: torch.FloatTensor) -> None:
-        self._update_release_index(continuation_tokens)
+        self._update_keep_index(continuation_tokens)
 
     def backtrack(self, 
                   continuation_tokens: List[int],
@@ -48,7 +48,7 @@ class AntiSlopStrategy(BacktrackStrategy):
             if past_key_values:
                 past_key_values = tuple(tuple(layer[:, :, :current_position - initial_position, :] for layer in kv_pair) for kv_pair in past_key_values)
 
-            self._update_release_index(continuation_tokens)
+            self._update_keep_index(continuation_tokens)
             
         return continuation_tokens, past_key_values
 
