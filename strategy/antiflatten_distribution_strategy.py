@@ -3,9 +3,9 @@ from .backtrack_strategy import BacktrackStrategy
 from typing import List, Optional, Tuple
 
 class AntiFlattenDistributionStrategy(BacktrackStrategy):
-    def __init__(self, cumulative_prob_threshold: float=0.35, ratio_threshold: float=1.5):
+    def __init__(self, cumulative_prob_threshold: float=0.35, num_top_tokens_threshold: int=3):
         self.cumulative_prob_threshold = cumulative_prob_threshold
-        self.ratio_threshold = ratio_threshold
+        self.num_top_tokens_threshold = num_top_tokens_threshold
         self._is_flat = False
         self._backtrack_position = None
         self._keep_index = 0
@@ -53,15 +53,10 @@ class AntiFlattenDistributionStrategy(BacktrackStrategy):
 
     def _is_distribution_flat(self, probs):
         """
-        Determines if the distribution over the top tokens is flat.
-    
-        Args:
-            probs (torch.Tensor or array-like): A 1D tensor or list of token probabilities.
-            cumulative_prob_threshold (float): The cumulative probability threshold to select top tokens.
-            ratio_threshold (float): The maximum allowed ratio between the top two probabilities for flatness.
-    
-        Returns:
-            bool: True if the distribution is flat, False otherwise.
+        This answers the question:
+        How many tokens are needed to get to a probability equal to a value of cumulative_prob_threshold.
+        If that number of tokens is more than the value of num_top_tokens_threshold,
+        then we consider we have a flatten distribution.
         """
         # Flatten probs to a 1D tensor
         probs = probs.view(-1)
@@ -75,21 +70,4 @@ class AntiFlattenDistributionStrategy(BacktrackStrategy):
         # Find the number of top tokens needed to reach the cumulative probability threshold
         num_top_tokens = torch.searchsorted(cumulative_probs, self.cumulative_prob_threshold).item() + 1
 
-        # Get the probabilities of the top tokens
-        top_probs = sorted_probs[:num_top_tokens]
-
-        # Ensure there are at least two tokens to compare
-        if num_top_tokens < 2:
-            return False  # Not enough tokens to judge flatness
-    
-        # Get the top two probabilities
-        max_prob = top_probs[0].item()
-
-        # +1e-8 to avoid division by 0
-        last_max_prob = top_probs[-1].item() + 1e-8
-    
-        # Compute the ratio
-        ratio = max_prob / last_max_prob
-        
-        # Determine if the distribution is flat
-        return ratio <= self.ratio_threshold
+        return self.num_top_tokens_threshold <= num_top_tokens
