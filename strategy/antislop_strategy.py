@@ -28,18 +28,17 @@ class AntiSlopStrategy(BacktrackStrategy):
     def _update_release_index(self, continuation_tokens: List[int]) -> None:
         self._release_index = max(len(continuation_tokens) - self.max_tokenized_slop - self.release_index_buffer, 0)
         
-    def on_next_token(self, continuation_tokens: List[int]) -> None:
+    def on_next_token(self, continuation_tokens: List[int], probs: torch.FloatTensor) -> None:
         self._update_release_index(continuation_tokens)
 
     def backtrack(self, 
                   continuation_tokens: List[int],
                   past_key_values: Optional[Tuple[Tuple[torch.Tensor, ...], ...]]) -> Tuple[List[int], int, Optional[Tuple[Tuple[torch.Tensor, ...], ...]]]:
         self.slop_start_pos = self._detect_slops(continuation_tokens)
-        current_position = len(continuation_tokens)
         if self.slop_start_pos is not None:
             self.found_slop_tokens.setdefault(self.slop_start_pos, set())
             self.found_slop_tokens[self.slop_start_pos].add(continuation_tokens[self.slop_start_pos])
-
+            current_position = len(continuation_tokens) 
             initial_position = current_position
 
             while current_position > self.slop_start_pos:

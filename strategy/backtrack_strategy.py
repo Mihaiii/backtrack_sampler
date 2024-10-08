@@ -20,5 +20,5 @@ class BacktrackStrategy(ABC):
         pass
 
     @abstractmethod
-    def on_next_token(self, continuation_tokens: List[int]) -> None:
+    def on_next_token(self, continuation_tokens: List[int], probs: torch.FloatTensor) -> None:
         pass

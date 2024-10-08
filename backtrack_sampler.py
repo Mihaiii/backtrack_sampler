@@ -84,7 +84,7 @@ class BacktrackSampler:
             next_token = torch.multinomial(probs, num_samples=1).item()
             
             continuation_tokens.append(next_token)
-            self.strategy.on_next_token(continuation_tokens)
+            self.strategy.on_next_token(continuation_tokens, probs)
 
             # Apply backtracking if necessary
             continuation_tokens, past_key_values = self.strategy.backtrack(continuation_tokens, past_key_values)
