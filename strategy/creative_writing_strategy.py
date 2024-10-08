@@ -3,18 +3,18 @@ from .backtrack_strategy import BacktrackStrategy
 from typing import List, Optional, Tuple
 
 class CreativeWritingStrategy(BacktrackStrategy):
-    def __init__(self, cumulative_prob_threshold: float=0.8, min_to_be_flatten: int=3, min_second_highest_prob: float=0.25):
+    def __init__(self, top_p_flat: float=0.8, top_k_threshold_flat: int=3, min_prob_second_highest: float=0.25):
         """
-        cumulative_prob_threshold: How many top tokens' probabilities sum up to this number?
-        min_to_be_flatten: Minimum number of tokens required to sum up to cumulative_prob_threshold in order
-            for the distribution to be considered flatten. The higher min_to_be_flatten is, the less often
+        top_p_flat: How many top tokens' probabilities sum up to this number?
+        top_k_threshold_flat: Minimum number of tokens required to sum up to top_p_flat in order
+            for the distribution to be considered flatten. The higher top_k_threshold_flat is, the less often
             the algo will rollback.
-        min_second_highest_prob: What is the minimum probability the second most probable token token must have
+        min_prob_second_highest: What is the minimum probability the second most probable token token must have
             in order to always be selected as next tokon, unless the rollback criterias will be met in the future.
         """
-        self.cumulative_prob_threshold = cumulative_prob_threshold
-        self.min_to_be_flatten = min_to_be_flatten
-        self.min_second_highest_prob = min_second_highest_prob
+        self.top_p_flat = top_p_flat
+        self.top_k_threshold_flat = top_k_threshold_flat
+        self.min_prob_second_highest = min_prob_second_highest
         self._is_flat = False
         self._backtrack_position = None
         self._keep_index = 0
@@ -25,7 +25,7 @@ class CreativeWritingStrategy(BacktrackStrategy):
     def on_logits(self, logits: torch.FloatTensor, continuation_tokens: List[int]) -> torch.FloatTensor:
         #if we just backtracked, then make the natural highest probable token the chosen one
         #else, make the chosen one the second natural highest probable token IF
-        #the probability is >= min_second_highest_prob
+        #the probability is >= min_prob_second_highest
         if self._is_flat and self._backtrack_position != None:
             logits[:, self._backtrack_position[1]] = torch.finfo(logits.dtype).max
             self._backtrack_position = None
@@ -34,7 +34,7 @@ class CreativeWritingStrategy(BacktrackStrategy):
             probabilities = probabilities.view(-1)
             sorted_probs, sorted_indices = torch.sort(probabilities, descending=True)
             second_highest_prob = sorted_probs[1]
-            if second_highest_prob >= self.min_second_highest_prob:
+            if second_highest_prob >= self.min_prob_second_highest:
                 logits[:, sorted_indices[1]] = torch.finfo(logits.dtype).max
 
         return logits
@@ -73,8 +73,8 @@ class CreativeWritingStrategy(BacktrackStrategy):
     def _is_distribution_flat(self, probs):
         """
         This answers the question:
-        How many tokens are needed to get to a probability equal to the value of cumulative_prob_threshold.
-        If that number of tokens is more than the value of min_to_be_flatten,
+        How many tokens are needed to get to a probability equal to the value of top_p_flat.
+        If that number of tokens is more than the value of top_k_threshold_flat,
         then we consider we have a flatten distribution.
         """
         # Flatten probs to a 1D tensor
@@ -87,6 +87,6 @@ class CreativeWritingStrategy(BacktrackStrategy):
         cumulative_probs = torch.cumsum(sorted_probs, dim=0)
     
         # Find the number of top tokens needed to reach the cumulative probability threshold
-        num_top_tokens = torch.searchsorted(cumulative_probs, self.cumulative_prob_threshold).item() + 1
+        num_top_tokens = torch.searchsorted(cumulative_probs, self.top_p_flat).item() + 1
 
-        return self.min_to_be_flatten <= num_top_tokens
+        return self.top_k_threshold_flat <= num_top_tokens
