@@ -1,7 +1,7 @@
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from BacktrackSampler import BacktrackSampler
-from strategy.AntiSlopStrategy import AntiSlopStrategy
+from backtrack_sampler import BacktrackSampler
+from strategy.antislop_strategy import AntiSlopStrategy
 
 model_name = "unsloth/Llama-3.2-1B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_name)

@@ -1,16 +1,18 @@
 import torch
 from typing import List, Optional, Tuple
 from transformers import PreTrainedTokenizer
-from .BacktrackStrategy import BacktrackStrategy
+from .backtrack_strategy import BacktrackStrategy
 
 class AntiSlopStrategy(BacktrackStrategy):
     def __init__(
         self,
         tokenizer: PreTrainedTokenizer,
-        slops: List[str]
+        slops: List[str],
+        release_index_buffer: int = 5
     ):
         self.tokenizer = tokenizer
         self.slops = slops
+        self.release_index_buffer = release_index_buffer
         self._release_index = 0
 
         self.tokenized_slops = self._tokenize_slop_variants()
@@ -23,8 +25,11 @@ class AntiSlopStrategy(BacktrackStrategy):
     def get_release_index(self) -> int:
         return self._release_index
     
+    def _update_release_index(self, continuation_tokens: List[int]) -> None:
+        self._release_index = max(len(continuation_tokens) - self.max_tokenized_slop - self.release_index_buffer, 0)
+        
     def on_next_token(self, continuation_tokens: List[int]) -> None:
-        self._release_index = max(len(continuation_tokens) - self.max_tokenized_slop, 0)
+        self._update_release_index(continuation_tokens)
 
     def backtrack(self, 
                   continuation_tokens: List[int],
@@ -44,6 +49,8 @@ class AntiSlopStrategy(BacktrackStrategy):
             if past_key_values:
                 past_key_values = tuple(tuple(layer[:, :, :current_position - initial_position, :] for layer in kv_pair) for kv_pair in past_key_values)
 
+            self._update_release_index(continuation_tokens)
+            
         return continuation_tokens, past_key_values
 
     def on_logits(self, logits: torch.Tensor, continuation_tokens: List[int]) -> torch.Tensor:

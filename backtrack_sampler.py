@@ -1,7 +1,7 @@
 import torch
 from transformers import PreTrainedTokenizer, PreTrainedModel
 from typing import List, Generator
-from strategy.BacktrackStrategy import BacktrackStrategy
+from strategy.backtrack_strategy import BacktrackStrategy
 
 class BacktrackSampler:
     def __init__(

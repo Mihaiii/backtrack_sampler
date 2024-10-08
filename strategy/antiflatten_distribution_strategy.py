@@ -1,5 +1,5 @@
 import torch
-from .BacktrackStrategy import BacktrackStrategy
+from .backtrack_strategy import BacktrackStrategy
 
 class AntiFlattenDistributionStrategy(BacktrackStrategy):
     def __init__(self, adjustment_strength: float = 1.0):
