@@ -6,9 +6,11 @@ class BacktrackStrategy(ABC):
     @abstractmethod
     def get_release_index(self) -> int:
         """
-        Everything up until (but not included) this index (meaning it starts with 0)
+        Everything up until (but not included!) this index
         is considered valid token generation that can't be rollbacked and therefore
         can be sent to the client for its use.
+        We keep in memory without sending to the client yet the tokens starting from this index
+        because we might want to rollback at a future point in time.
         """
         pass
 

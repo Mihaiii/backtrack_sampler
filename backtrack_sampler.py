@@ -94,6 +94,8 @@ class BacktrackSampler:
                 released_index += 1
 
             if next_token == self.tokenizer.eos_token_id:
+                for token in continuation_tokens[released_index:]:
+                    yield token
                 break
 
         del past_key_values
