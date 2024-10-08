@@ -5,3 +5,4 @@ TODO:
 - hf space
 - readme
 - gguf support (basically don't send the model in, but some wrapper or lambda)
+- use a cache class
