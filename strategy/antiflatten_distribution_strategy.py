@@ -32,8 +32,9 @@ class AntiFlattenDistributionStrategy(BacktrackStrategy):
         return continuation_tokens, past_key_values
 
     def on_logits(self, logits: torch.FloatTensor, continuation_tokens: List[int]) -> torch.FloatTensor:
-        if self._backtrack_position is not None:
-            logits[:, self._backtrack_position[1]] = float('-inf')
+        #only apply it if we just backtracked
+        if self._is_flat and self._backtrack_position != None:
+            logits[:, self._backtrack_position[1]] = torch.finfo(logits.dtype).max
             self._backtrack_position = None
         return logits
 
