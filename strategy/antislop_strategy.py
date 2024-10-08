@@ -37,12 +37,12 @@ class AntiSlopStrategy(BacktrackStrategy):
         self.slop_start_pos = self._detect_slops(continuation_tokens)
         current_position = len(continuation_tokens)
         if self.slop_start_pos is not None:
-            self.found_slop_tokens.setdefault(self.slop_start_pos, [])
-            self.found_slop_tokens[self.slop_start_pos].append(continuation_tokens[self.slop_start_pos])
+            self.found_slop_tokens.setdefault(self.slop_start_pos, set())
+            self.found_slop_tokens[self.slop_start_pos].add(continuation_tokens[self.slop_start_pos])
 
             initial_position = current_position
 
-            while current_position >= self.slop_start_pos:
+            while current_position > self.slop_start_pos:
                 continuation_tokens.pop()
                 current_position -= 1
 

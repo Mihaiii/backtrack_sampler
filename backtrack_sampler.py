@@ -86,6 +86,9 @@ class BacktrackSampler:
             continuation_tokens.append(next_token)
             self.strategy.on_next_token(continuation_tokens)
 
+            # Apply backtracking if necessary
+            continuation_tokens, past_key_values = self.strategy.backtrack(continuation_tokens, past_key_values)
+
             while released_index < self.strategy.get_release_index():
                 yield next_token
                 released_index += 1
@@ -93,10 +96,9 @@ class BacktrackSampler:
             if next_token == self.tokenizer.eos_token_id:
                 break
 
-            # Apply backtracking if necessary
-            continuation_tokens, past_key_values = self.strategy.backtrack(continuation_tokens, past_key_values)
-
         del past_key_values
+        if self.device.type == 'cuda':
+            torch.cuda.empty_cache()
 
     def _filter_logits(self, logits: torch.FloatTensor, top_k: int, top_p: float, min_p: float) -> torch.FloatTensor:
         if min_p is not None:
