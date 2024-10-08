@@ -15,10 +15,6 @@ class BacktrackStrategy(ABC):
         pass
 
     @abstractmethod
-    def backtrack(self, continuation_tokens: list[int]) -> Tuple[int, Optional[Tuple[Tuple[torch.Tensor, ...], ...]]]:
-        pass
-
-    @abstractmethod
     def on_logits(self, logits: torch.FloatTensor, continuation_tokens: List[int]) -> torch.FloatTensor:
         pass
 
@@ -28,4 +24,8 @@ class BacktrackStrategy(ABC):
 
     @abstractmethod
     def on_next_token(self, continuation_tokens: List[int], probs: torch.FloatTensor) -> None:
+        pass
+    
+    @abstractmethod
+    def backtrack(self, continuation_tokens: list[int]) -> Tuple[int, Optional[Tuple[Tuple[torch.Tensor, ...], ...]]]:
         pass

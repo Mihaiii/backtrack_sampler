@@ -27,10 +27,19 @@ class AntiSlopStrategy(BacktrackStrategy):
     
     def _update_keep_index(self, continuation_tokens: List[int]) -> None:
         self._keep_index = max(len(continuation_tokens) - self.max_tokenized_slop - self.keep_index_buffer, 0)
-        
+
+    def on_logits(self, logits: torch.Tensor, continuation_tokens: List[int]) -> torch.Tensor:
+        if self.slop_start_pos is not None:
+            for token in self.found_slop_tokens[self.slop_start_pos]:
+                logits[:, token] = float('-inf')
+        return logits
+    
+    def on_probs(self, probs: torch.FloatTensor, continuation_tokens: List[int]) -> torch.FloatTensor:
+        return probs
+    
     def on_next_token(self, continuation_tokens: List[int], probs: torch.FloatTensor) -> None:
         self._update_keep_index(continuation_tokens)
-
+        
     def backtrack(self, 
                   continuation_tokens: List[int],
                   past_key_values: Optional[Tuple[Tuple[torch.Tensor, ...], ...]]) -> Tuple[List[int], int, Optional[Tuple[Tuple[torch.Tensor, ...], ...]]]:
@@ -51,12 +60,6 @@ class AntiSlopStrategy(BacktrackStrategy):
             self._update_keep_index(continuation_tokens)
             
         return continuation_tokens, past_key_values
-
-    def on_logits(self, logits: torch.Tensor, continuation_tokens: List[int]) -> torch.Tensor:
-        if self.slop_start_pos is not None:
-            for token in self.found_slop_tokens[self.slop_start_pos]:
-                logits[:, token] = float('-inf')
-        return logits
 
     def _tokenize_slop_variants(self) -> list[list[int]]:
         token_sequences = []
@@ -84,7 +87,3 @@ class AntiSlopStrategy(BacktrackStrategy):
                         min_index = i
                     break  # Found the first occurrence, move to next slop
         return min_index
-    
-
-    def on_probs(self, probs: torch.FloatTensor, continuation_tokens: List[int]) -> torch.FloatTensor:
-        return probs
