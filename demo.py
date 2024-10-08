@@ -7,6 +7,7 @@ model_name = "unsloth/Llama-3.2-1B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name)
 device = torch.device('cuda')
+model.to(device)
 
 slops = [
     'kaleidoscope',
