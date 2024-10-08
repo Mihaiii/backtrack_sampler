@@ -23,7 +23,7 @@ class BacktrackSampler:
         max_length: int = None,
         max_new_tokens: int = None,
         temperature: float = 1.0,
-        top_k: int = None,
+        top_k: int = 50, #same as HF's transformers default value
         top_p: float = None,
         min_p: float = None,
         use_cache: bool = True, 
