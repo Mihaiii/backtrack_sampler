@@ -4,6 +4,14 @@ from typing import List, Optional, Tuple
 
 class CreativeWritingStrategy(BacktrackStrategy):
     def __init__(self, cumulative_prob_threshold: float=0.8, min_to_be_flatten: int=3, min_second_highest_prob: float=0.25):
+        """
+        cumulative_prob_threshold: How many top tokens' probabilities sum up to this number?
+        min_to_be_flatten: Minimum number of tokens required to sum up to cumulative_prob_threshold in order
+            for the distribution to be considered flatten. The higher min_to_be_flatten is, the less often
+            the algo will rollback.
+        min_second_highest_prob: What is the minimum probability the second most probable token token must have
+            in order to always be selected as next tokon, unless the rollback criterias will be met in the future.
+        """
         self.cumulative_prob_threshold = cumulative_prob_threshold
         self.min_to_be_flatten = min_to_be_flatten
         self.min_second_highest_prob = min_second_highest_prob
