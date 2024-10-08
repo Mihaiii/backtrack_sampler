@@ -2,10 +2,11 @@ import torch
 from .backtrack_strategy import BacktrackStrategy
 from typing import List, Optional, Tuple
 
-class AntiFlattenDistributionStrategy(BacktrackStrategy):
-    def __init__(self, cumulative_prob_threshold: float=0.8, num_top_tokens_threshold: int=3):
+class CreativeWritingStrategy(BacktrackStrategy):
+    def __init__(self, cumulative_prob_threshold: float=0.8, min_to_be_flatten: int=3, min_second_highest_prob: float=0.25):
         self.cumulative_prob_threshold = cumulative_prob_threshold
-        self.num_top_tokens_threshold = num_top_tokens_threshold
+        self.min_to_be_flatten = min_to_be_flatten
+        self.min_second_highest_prob = min_second_highest_prob
         self._is_flat = False
         self._backtrack_position = None
         self._keep_index = 0
@@ -14,10 +15,20 @@ class AntiFlattenDistributionStrategy(BacktrackStrategy):
         return self._keep_index
 
     def on_logits(self, logits: torch.FloatTensor, continuation_tokens: List[int]) -> torch.FloatTensor:
-        #only apply it if we just backtracked
+        #if we just backtracked, then make the natural highest probable token the chosen one
+        #else, make the chosen one the second natural highest probable token IF
+        #the probability is >= min_second_highest_prob
         if self._is_flat and self._backtrack_position != None:
             logits[:, self._backtrack_position[1]] = torch.finfo(logits.dtype).max
             self._backtrack_position = None
+        else:
+            probabilities = torch.softmax(logits, dim=-1)
+            probabilities = probabilities.view(-1)
+            sorted_probs, sorted_indices = torch.sort(probabilities, descending=True)
+            second_highest_prob = sorted_probs[1]
+            if second_highest_prob >= self.min_second_highest_prob:
+                logits[:, sorted_indices[1]] = torch.finfo(logits.dtype).max
+
         return logits
 
     def on_probs(self, probs: torch.FloatTensor, continuation_tokens: List[int]) -> torch.FloatTensor:
@@ -54,8 +65,8 @@ class AntiFlattenDistributionStrategy(BacktrackStrategy):
     def _is_distribution_flat(self, probs):
         """
         This answers the question:
-        How many tokens are needed to get to a probability equal to a value of cumulative_prob_threshold.
-        If that number of tokens is more than the value of num_top_tokens_threshold,
+        How many tokens are needed to get to a probability equal to the value of cumulative_prob_threshold.
+        If that number of tokens is more than the value of min_to_be_flatten,
         then we consider we have a flatten distribution.
         """
         # Flatten probs to a 1D tensor
@@ -70,4 +81,4 @@ class AntiFlattenDistributionStrategy(BacktrackStrategy):
         # Find the number of top tokens needed to reach the cumulative probability threshold
         num_top_tokens = torch.searchsorted(cumulative_probs, self.cumulative_prob_threshold).item() + 1
 
-        return self.num_top_tokens_threshold <= num_top_tokens
+        return self.min_to_be_flatten <= num_top_tokens
