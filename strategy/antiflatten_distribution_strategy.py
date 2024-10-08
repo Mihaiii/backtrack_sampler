@@ -3,7 +3,7 @@ from .backtrack_strategy import BacktrackStrategy
 from typing import List, Optional, Tuple
 
 class AntiFlattenDistributionStrategy(BacktrackStrategy):
-    def __init__(self, cumulative_prob_threshold: float=0.35, num_top_tokens_threshold: int=3):
+    def __init__(self, cumulative_prob_threshold: float=0.8, num_top_tokens_threshold: int=3):
         self.cumulative_prob_threshold = cumulative_prob_threshold
         self.num_top_tokens_threshold = num_top_tokens_threshold
         self._is_flat = False
