@@ -42,7 +42,7 @@ class AntiSlopStrategy(BacktrackStrategy):
         
     def backtrack(self, 
                   continuation_tokens: List[int],
-                  past_key_values: Optional[Tuple[Tuple[torch.Tensor, ...], ...]]) -> Tuple[List[int], int, Optional[Tuple[Tuple[torch.Tensor, ...], ...]]]:
+                  past_key_values: Optional[Tuple[Tuple[torch.Tensor, ...], ...]]) -> Tuple[List[int], Optional[Tuple[Tuple[torch.Tensor, ...], ...]]]:
         self.slop_start_pos = self._detect_slops(continuation_tokens)
         if self.slop_start_pos is not None:
             self.found_slop_tokens.setdefault(self.slop_start_pos, set())

@@ -56,7 +56,7 @@ class CreativeWritingStrategy(BacktrackStrategy):
 
     def backtrack(self, 
                   continuation_tokens: List[int],
-                  past_key_values: Optional[Tuple[Tuple[torch.Tensor, ...], ...]]) -> Tuple[List[int], int, Optional[Tuple[Tuple[torch.Tensor, ...], ...]]]:
+                  past_key_values: Optional[Tuple[Tuple[torch.Tensor, ...], ...]]) -> Tuple[List[int], Optional[Tuple[Tuple[torch.Tensor, ...], ...]]]:
         if self._is_flat and self._backtrack_position != None:
             current_position = len(continuation_tokens)
             initial_position = current_position

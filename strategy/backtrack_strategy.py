@@ -10,7 +10,7 @@ class BacktrackStrategy(ABC):
         because we might want to rollback at a future point in time.
         Everything up until (but not included!) this index
         is considered valid token generation that can't be rollbacked and therefore
-        can be sent to the client for its use.
+        can be sent to the client.
         """
         pass
 
@@ -27,5 +27,7 @@ class BacktrackStrategy(ABC):
         pass
     
     @abstractmethod
-    def backtrack(self, continuation_tokens: list[int]) -> Tuple[int, Optional[Tuple[Tuple[torch.Tensor, ...], ...]]]:
+    def backtrack(self, 
+                  continuation_tokens: List[int],
+                  past_key_values: Optional[Tuple[Tuple[torch.Tensor, ...], ...]]) -> Tuple[List[int], Optional[Tuple[Tuple[torch.Tensor, ...], ...]]]:
         pass
