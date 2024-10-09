@@ -12,7 +12,6 @@ class TransformersProvider(BacktrackSamplerProvider):
     ):
         self.model = model.to(device)
         self.tokenizer = tokenizer
-        self.device = device
         self.past_key_values = DynamicCache()
 
     def encode(self, text: str, add_special_tokens: bool=True) -> List[int]:
