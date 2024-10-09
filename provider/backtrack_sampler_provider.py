@@ -12,7 +12,7 @@ class BacktrackSamplerProvider(ABC):
         pass
 
     @abstractmethod
-    def generate(self, input_ids: torch.Tensor) -> torch.Tensor:
+    def generate(self, input_ids: torch.Tensor, *args, **kwargs) -> torch.Tensor:
         pass
 
     @abstractmethod
