@@ -39,13 +39,12 @@ class BacktrackSampler:
 
         while True:
             generated_sequence = input_tokens + continuation_tokens
-            nr_new_tokens = len(continuation_tokens)
             if max_length is not None and len(generated_sequence) >= max_length:
                 for token in continuation_tokens[release_index:]:
                     yield token           
                 break
             
-            if max_new_tokens is not None and nr_new_tokens >= max_new_tokens:
+            if max_new_tokens is not None and len(continuation_tokens) >= max_new_tokens:
                 for token in continuation_tokens[release_index:]:
                     yield token
                 break
