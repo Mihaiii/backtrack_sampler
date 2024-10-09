@@ -70,8 +70,7 @@ class BacktrackSampler:
             if use_cache:
                 past_key_values = outputs.past_key_values
 
-            next_token_logits = outputs.scores[0]
-            next_token_logits = next_token_logits / max(temperature, 1e-8)
+            next_token_logits = outputs.scores[0] / max(temperature, 1e-8)
 
             # Opportunity to apply strategy-specific penalty
             next_token_logits = self.strategy.on_logits(next_token_logits, continuation_tokens)
