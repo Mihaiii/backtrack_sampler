@@ -1,5 +1,5 @@
 import torch
-from transformers import PreTrainedTokenizer, PreTrainedModel
+from transformers import PreTrainedTokenizer, PreTrainedModel, DynamicCache
 from typing import List, Generator
 from strategy.backtrack_strategy import BacktrackStrategy
 
@@ -26,7 +26,6 @@ class BacktrackSampler:
         top_k: int = 50, #same as HF's transformers default value
         top_p: float = None,
         min_p: float = None,
-        use_cache: bool = True, 
         *args, 
         **kwargs
     ) -> Generator[List[int], None, None]:
@@ -35,7 +34,7 @@ class BacktrackSampler:
         input_tokens = input_ids[0].tolist()
         continuation_tokens = []
         release_index = 0
-        past_key_values = None
+        past_key_values = DynamicCache()
 
         while True:
             generated_sequence = input_tokens + continuation_tokens
@@ -60,14 +59,12 @@ class BacktrackSampler:
                 num_return_sequences=1,
                 return_dict_in_generate=True,
                 output_scores=True,
-                use_cache=use_cache,
-                past_key_values=past_key_values if use_cache else None,
+                past_key_values=past_key_values,
                 *args,
                 **kwargs
             )
 
-            if use_cache:
-                past_key_values = outputs.past_key_values
+            past_key_values = outputs.past_key_values
 
             next_token_logits = outputs.scores[0] / max(temperature, 1e-8)
 

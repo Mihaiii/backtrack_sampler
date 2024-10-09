@@ -1,6 +1,6 @@
 import torch
 from typing import List, Optional, Tuple
-from transformers import PreTrainedTokenizer
+from transformers import PreTrainedTokenizer, DynamicCache
 from .backtrack_strategy import BacktrackStrategy
 
 class AntiSlopStrategy(BacktrackStrategy):
@@ -42,7 +42,7 @@ class AntiSlopStrategy(BacktrackStrategy):
         
     def backtrack(self, 
                   continuation_tokens: List[int],
-                  past_key_values: Optional[Tuple[Tuple[torch.Tensor, ...], ...]]) -> Tuple[List[int], Optional[Tuple[Tuple[torch.Tensor, ...], ...]]]:
+                  past_key_values: DynamicCache) -> Tuple[List[int], DynamicCache]:
         self.slop_start_pos = self._detect_slops(continuation_tokens)
         if self.slop_start_pos is not None:
             self.found_slop_tokens.setdefault(self.slop_start_pos, set())
@@ -54,8 +54,7 @@ class AntiSlopStrategy(BacktrackStrategy):
                 continuation_tokens.pop()
                 current_position -= 1
 
-            if past_key_values:
-                past_key_values = tuple(tuple(layer[:, :, :current_position - initial_position, :] for layer in kv_pair) for kv_pair in past_key_values)
+            past_key_values = tuple(tuple(layer[:, :, :current_position - initial_position, :] for layer in kv_pair) for kv_pair in past_key_values)
 
             self._update_keep_index(continuation_tokens)
             

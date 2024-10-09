@@ -1,4 +1,5 @@
 import torch
+from transformers import DynamicCache
 from abc import ABC, abstractmethod
 from typing import List, Optional, Tuple
 
@@ -29,5 +30,5 @@ class BacktrackStrategy(ABC):
     @abstractmethod
     def backtrack(self, 
                   continuation_tokens: List[int],
-                  past_key_values: Optional[Tuple[Tuple[torch.Tensor, ...], ...]]) -> Tuple[List[int], Optional[Tuple[Tuple[torch.Tensor, ...], ...]]]:
+                  past_key_values: DynamicCache) -> Tuple[List[int], DynamicCache]:
         pass
