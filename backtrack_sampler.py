@@ -49,7 +49,7 @@ class BacktrackSampler:
 
             outputs = self.provider.generate(input_ids, *args, **kwargs)
 
-            next_token_logits = outputs.scores[0] / max(temperature, 1e-8)
+            next_token_logits = outputs.scores[0] / max(temperature, 1e-4)
 
             # Opportunity to apply strategy-specific penalty
             next_token_logits = self.strategy.on_logits(next_token_logits, continuation_tokens)
