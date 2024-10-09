@@ -10,7 +10,7 @@ class CreativeWritingStrategy(BacktrackStrategy):
             for the distribution to be considered flatten. The higher top_k_threshold_flat is, the less often
             the algo will rollback.
         min_prob_second_highest: What is the minimum probability the second most probable token token must have
-            in order to always be selected as next tokon, unless the rollback criterias will be met in the future.
+            in order to always be selected as next tokon.
         """
         self.top_p_flat = top_p_flat
         self.top_k_threshold_flat = top_k_threshold_flat
