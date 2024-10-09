@@ -1,19 +1,17 @@
 import torch
-from transformers import PreTrainedTokenizer, PreTrainedModel, DynamicCache
 from typing import List, Generator
 from strategy.backtrack_strategy import BacktrackStrategy
+from provider.backtrack_sampler_provider import BacktrackSamplerProvider
 
 class BacktrackSampler:
     def __init__(
         self,
-        model: PreTrainedModel,
-        tokenizer: PreTrainedTokenizer,
         strategy: BacktrackStrategy,
+        provider: BacktrackSamplerProvider,
         device: torch.device = torch.device('cuda')
     ):
-        self.model = model.to(device)
-        self.tokenizer = tokenizer
         self.strategy = strategy
+        self.provider = provider
         self.device = device
 
     @torch.no_grad()
@@ -30,11 +28,10 @@ class BacktrackSampler:
         **kwargs
     ) -> Generator[List[int], None, None]:
         
-        input_ids = self.tokenizer.encode(prompt, return_tensors="pt").to(self.device)
+        input_ids = torch.tensor(self.provider.encode(prompt, add_special_tokens=True), device=self.device)
         input_tokens = input_ids[0].tolist()
         continuation_tokens = []
         release_index = 0
-        past_key_values = DynamicCache()
 
         while True:
             generated_sequence = input_tokens + continuation_tokens
@@ -48,23 +45,9 @@ class BacktrackSampler:
                     yield token
                 break
 
-            current_input_ids = torch.tensor([generated_sequence], device=self.device)
+            input_ids = torch.tensor([generated_sequence], device=self.device)
 
-            outputs = self.model.generate(
-                current_input_ids,
-                max_new_tokens=1,
-                do_sample=False,
-                temperature=1,  # We apply temp ourselves after this
-                pad_token_id=self.tokenizer.pad_token_id,
-                num_return_sequences=1,
-                return_dict_in_generate=True,
-                output_scores=True,
-                past_key_values=past_key_values,
-                *args,
-                **kwargs
-            )
-
-            past_key_values = outputs.past_key_values
+            outputs = self.provider.generate(input_ids, *args, **kwargs)
 
             next_token_logits = outputs.scores[0] / max(temperature, 1e-8)
 
@@ -88,18 +71,18 @@ class BacktrackSampler:
             continuation_tokens = self.strategy.backtrack(continuation_tokens)
 
             if(intial_len > len(continuation_tokens)):
-                past_key_values.crop(len(continuation_tokens) - intial_len)
+                self.provider.crop_cache_idx(len(continuation_tokens) - intial_len)
             
             while release_index < self.strategy.get_keep_index() - 1:
                 yield continuation_tokens[release_index]
                 release_index += 1
 
-            if next_token == self.tokenizer.eos_token_id:
+            if next_token == self.provider.get_eos_token_id():
                 for token in continuation_tokens[release_index:]:
                     yield token
                 break
 
-        del past_key_values
+        self.provider.on_finish()
         if self.device.type == 'cuda':
             torch.cuda.empty_cache()
 

@@ -1,16 +1,16 @@
 import torch
 from typing import List, Optional
-from transformers import PreTrainedTokenizer
 from .backtrack_strategy import BacktrackStrategy
+from provider.backtrack_sampler_provider import BacktrackSamplerProvider
 
 class AntiSlopStrategy(BacktrackStrategy):
     def __init__(
         self,
-        tokenizer: PreTrainedTokenizer,
+        provider: BacktrackSamplerProvider,
         slops: List[str],
         keep_index_buffer: int = 5
     ):
-        self.tokenizer = tokenizer
+        self.provider = provider
         self.slops = slops
         self.keep_index_buffer = keep_index_buffer
         self._keep_index = 0
@@ -65,7 +65,7 @@ class AntiSlopStrategy(BacktrackStrategy):
                 f" {slop.upper()}",
             ]
             for variant in variants:
-                token_ids = self.tokenizer.encode(variant, add_special_tokens=False)
+                token_ids = self.provider.encode(variant, add_special_tokens=False)
                 if token_ids:
                     token_sequences.append(token_ids)
         return token_sequences
