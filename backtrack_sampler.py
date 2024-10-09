@@ -84,7 +84,11 @@ class BacktrackSampler:
             self.strategy.on_next_token(continuation_tokens, probs)
 
             # Apply backtracking if necessary
-            continuation_tokens, past_key_values = self.strategy.backtrack(continuation_tokens, past_key_values)
+            initial_len = len(continuation_tokens)
+            continuation_tokens = self.strategy.backtrack(continuation_tokens)
+
+            if len(continuation_tokens) < initial_len:
+                past_key_values = tuple(tuple(layer[:, :, :len(continuation_tokens) - initial_len, :] for layer in kv_pair) for kv_pair in past_key_values)
 
             while release_index < self.strategy.get_keep_index() - 1:
                 yield continuation_tokens[release_index]

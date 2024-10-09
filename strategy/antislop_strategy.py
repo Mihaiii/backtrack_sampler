@@ -1,6 +1,6 @@
 import torch
-from typing import List, Optional, Tuple
-from transformers import PreTrainedTokenizer, DynamicCache
+from typing import List, Optional
+from transformers import PreTrainedTokenizer
 from .backtrack_strategy import BacktrackStrategy
 
 class AntiSlopStrategy(BacktrackStrategy):
@@ -40,25 +40,18 @@ class AntiSlopStrategy(BacktrackStrategy):
     def on_next_token(self, continuation_tokens: List[int], probs: torch.FloatTensor) -> None:
         self._update_keep_index(continuation_tokens)
         
-    def backtrack(self, 
-                  continuation_tokens: List[int],
-                  past_key_values: DynamicCache) -> Tuple[List[int], DynamicCache]:
+    def backtrack(self, continuation_tokens: List[int]) -> List[int]:
         self.slop_start_pos = self._detect_slops(continuation_tokens)
         if self.slop_start_pos is not None:
             self.found_slop_tokens.setdefault(self.slop_start_pos, set())
             self.found_slop_tokens[self.slop_start_pos].add(continuation_tokens[self.slop_start_pos])
-            current_position = len(continuation_tokens) 
-            initial_position = current_position
 
-            while current_position > self.slop_start_pos:
+            while len(continuation_tokens)  > self.slop_start_pos:
                 continuation_tokens.pop()
-                current_position -= 1
-
-            past_key_values = tuple(tuple(layer[:, :, :current_position - initial_position, :] for layer in kv_pair) for kv_pair in past_key_values)
 
             self._update_keep_index(continuation_tokens)
             
-        return continuation_tokens, past_key_values
+        return continuation_tokens
 
     def _tokenize_slop_variants(self) -> list[list[int]]:
         token_sequences = []

@@ -1,7 +1,6 @@
 import torch
 from .backtrack_strategy import BacktrackStrategy
-from typing import List, Optional, Tuple
-from transformers import DynamicCache
+from typing import List
 
 class CreativeWritingStrategy(BacktrackStrategy):
     def __init__(self, top_p_flat: float=0.8, top_k_threshold_flat: int=3, min_prob_second_highest: float=0.25):
@@ -55,20 +54,12 @@ class CreativeWritingStrategy(BacktrackStrategy):
             if self._backtrack_position is None:
                 self._keep_index += 1
 
-    def backtrack(self, 
-                  continuation_tokens: List[int],
-                  past_key_values: DynamicCache) -> Tuple[List[int], DynamicCache]:
+    def backtrack(self, continuation_tokens: List[int]) -> List[int]:
         if self._is_flat and self._backtrack_position != None:
-            current_position = len(continuation_tokens)
-            initial_position = current_position
-
-            while current_position > self._backtrack_position[0]:
+            while len(continuation_tokens) > self._backtrack_position[0]:
                 continuation_tokens.pop()
-                current_position -= 1
-
-            past_key_values = tuple(tuple(layer[:, :, :current_position - initial_position, :] for layer in kv_pair) for kv_pair in past_key_values)
             
-        return continuation_tokens, past_key_values
+        return continuation_tokens
 
     def _is_distribution_flat(self, probs):
         """

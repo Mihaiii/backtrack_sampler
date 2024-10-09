@@ -1,7 +1,6 @@
 import torch
-from transformers import DynamicCache
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple
+from typing import List
 
 class BacktrackStrategy(ABC):
     @abstractmethod
@@ -28,7 +27,5 @@ class BacktrackStrategy(ABC):
         pass
     
     @abstractmethod
-    def backtrack(self, 
-                  continuation_tokens: List[int],
-                  past_key_values: DynamicCache) -> Tuple[List[int], DynamicCache]:
+    def backtrack(self, continuation_tokens: List[int]) -> List[int]:
         pass
