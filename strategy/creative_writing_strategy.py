@@ -25,7 +25,7 @@ class CreativeWritingStrategy(BacktrackStrategy):
     def on_logits(self, logits: torch.FloatTensor, continuation_tokens: List[int]) -> torch.FloatTensor:
         #if we just backtracked, then make the natural highest probable token the chosen one
         #else, make the chosen one the second natural highest probable token IF
-        #the probability is >= min_prob_second_highest
+        #its probability is >= min_prob_second_highest
         if self._is_flat and self._backtrack_position != None:
             logits[:, self._backtrack_position[1]] = torch.finfo(logits.dtype).max
             self._backtrack_position = None
