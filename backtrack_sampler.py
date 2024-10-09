@@ -83,11 +83,13 @@ class BacktrackSampler:
             continuation_tokens.append(next_token)
             self.strategy.on_next_token(continuation_tokens, probs)
 
+            intial_len = len(continuation_tokens)
             # Apply backtracking if necessary
             continuation_tokens = self.strategy.backtrack(continuation_tokens)
 
-            past_key_values.crop(len(continuation_tokens))
-
+            if(intial_len > len(continuation_tokens)):
+                past_key_values.crop(len(continuation_tokens) - intial_len)
+            
             while release_index < self.strategy.get_keep_index() - 1:
                 yield continuation_tokens[release_index]
                 release_index += 1
