@@ -73,7 +73,7 @@ class CreativeWritingStrategy(BacktrackStrategy):
     def _is_distribution_flat(self, probs):
         """
         This answers the question:
-        How many tokens are needed to get to a probability equal to the value of top_p_flat.
+        How many top tokens are needed to get to a probability equal to the value of top_p_flat.
         If that number of tokens is more than the value of top_k_threshold_flat,
         then we consider we have a flatten distribution.
         """
