@@ -1,12 +1,12 @@
 import torch
 from typing import List, Optional
-from .backtrack_strategy import BacktrackStrategy
-from provider.backtrack_sampler_provider import BacktrackSamplerProvider
+from .backtrack_strategy import BaseStrategy
+from provider.base_provider import BaseProvider
 
-class AntiSlopStrategy(BacktrackStrategy):
+class AntiSlopStrategy(BaseStrategy):
     def __init__(
         self,
-        provider: BacktrackSamplerProvider,
+        provider: BaseProvider,
         slops: List[str],
         keep_index_buffer: int = 5
     ):

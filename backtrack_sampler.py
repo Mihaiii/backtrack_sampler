@@ -1,13 +1,13 @@
 import torch
 from typing import List, Generator
-from strategy.backtrack_strategy import BacktrackStrategy
-from provider.backtrack_sampler_provider import BacktrackSamplerProvider
+from strategy.backtrack_strategy import BaseStrategy
+from provider.base_provider import BaseProvider
 
 class BacktrackSampler:
     def __init__(
         self,
-        strategy: BacktrackStrategy,
-        provider: BacktrackSamplerProvider,
+        strategy: BaseStrategy,
+        provider: BaseProvider,
         device: torch.device = torch.device('cuda')
     ):
         self.strategy = strategy

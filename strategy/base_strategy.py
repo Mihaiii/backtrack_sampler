@@ -2,7 +2,7 @@ import torch
 from abc import ABC, abstractmethod
 from typing import List
 
-class BacktrackStrategy(ABC):
+class BaseStrategy(ABC):
     @abstractmethod
     def get_keep_index(self) -> int:
         """

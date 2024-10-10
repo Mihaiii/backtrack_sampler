@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List
 import torch
 
-class BacktrackSamplerProvider(ABC):
+class BaseProvider(ABC):
     @abstractmethod
     def encode(self, text: str, add_special_tokens: bool=True) -> List[int]:
         pass

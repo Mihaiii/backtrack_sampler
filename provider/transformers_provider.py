@@ -1,9 +1,9 @@
-from .backtrack_sampler_provider import BacktrackSamplerProvider
+from .base_provider import BaseProvider
 import torch
 from typing import List
 from transformers import PreTrainedTokenizer, PreTrainedModel, DynamicCache
 
-class TransformersProvider(BacktrackSamplerProvider):
+class TransformersProvider(BaseProvider):
     def __init__(
         self,
         model: PreTrainedModel,

@@ -1,8 +1,8 @@
-from .backtrack_sampler_provider import BacktrackSamplerProvider
+from .base_provider import BaseProvider
 import torch
 from typing import List
 
-class LlamacppProvider(BacktrackSamplerProvider):
+class LlamacppProvider(BaseProvider):
     def encode(self, text: str, add_special_tokens: bool=True) -> List[int]:
         pass
 

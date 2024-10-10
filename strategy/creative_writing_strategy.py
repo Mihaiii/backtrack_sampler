@@ -1,8 +1,8 @@
 import torch
-from .backtrack_strategy import BacktrackStrategy
+from .base_strategy import BaseStrategy
 from typing import List
 
-class CreativeWritingStrategy(BacktrackStrategy):
+class CreativeWritingStrategy(BaseStrategy):
     def __init__(self, top_p_flat: float=0.8, top_k_threshold_flat: int=3, min_prob_second_highest: float=0.25):
         """
         top_p_flat: How many top tokens' probabilities sum up to this number?
