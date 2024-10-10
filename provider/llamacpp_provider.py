@@ -11,6 +11,8 @@ class LlamacppProvider(BaseProvider):
         device: torch.device = torch.device('cpu')
     ):
         self.llm = llm
+        self.llm.logits_all=True
+        self.llm.context_params.logits_all=True
         self.llm.set_cache(cache)
         self.device = device
 
@@ -21,10 +23,20 @@ class LlamacppProvider(BaseProvider):
         return self.llm.detokenize(tokens).decode("utf-8", errors="ignore")
 
     def generate(self, input_ids: List[int], *args, **kwargs) -> torch.Tensor:
-        #TODO
-        #output= # pus number layers etc in functie de self.device.type == 'cuda'
-        #return torch.tensor(output, device=self.device)
-        pass
+        prompt = self.decode(input_ids)
+        output = self.llm(
+            prompt,
+            max_tokens=1,
+            echo=False,
+            logprobs=9999999999999999,
+            temperature=1,
+            top_p=1,
+            top_k=9999999999999999,
+            min_p=0,
+             *args, **kwargs
+        )
+        logits = list(output['choices'][0]['logprobs']['top_logprobs'][0].values())
+        return torch.tensor([logits], device=self.device)
 
     def get_eos_token_id(self) -> int:
         return self.llm.token_eos()

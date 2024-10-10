@@ -38,7 +38,7 @@ class TransformersProvider(BaseProvider):
         )
 
         self.past_key_values = outputs.past_key_values
-        return outputs
+        return outputs.scores[0]
 
     def get_eos_token_id(self) -> int:
         return self.tokenizer.eos_token_id
