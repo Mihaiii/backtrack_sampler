@@ -1,6 +1,6 @@
 [This is not a released product. Do not use it yet. The package on pypi is a super old version that doesn't work.]
 
-# backtrack_sampler
+# Backtrack Sampler
 backtrack_sampler was built for experimenting with custom sampling algorithms (strategies) that can backtrack/undo/rewind/reverse the latest generated tokens.
  
 ## The code is short, simple and easy to understand.
