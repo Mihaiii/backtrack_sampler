@@ -19,6 +19,7 @@ class LlamacppProvider(BaseProvider):
         return self.llm.detokenize(tokens).decode("utf-8", errors="ignore")
 
     def generate(self, input_ids: torch.Tensor, *args, **kwargs) -> torch.Tensor:
+        #TODO
         pass
 
     def get_eos_token_id(self) -> int:
