@@ -64,7 +64,7 @@ Each file under `/strategy` sets rules for when to backtrack, how much to backtr
 
 At the moment, we have 2 strategies available:
 ### * Antislop strategy
-The antislop strategy is used to ban certain phrases. Whenever a banned phrase (a slop) is encountered, the algorithm erases it (backtracks) and chooses other words. The algorithm used [antislop-sampler](https://github.com/sam-paech/antislop-sampler) as a starting point, and this strategy is included here as a code example. If you want to use such a sampler, we recommend using [antislop-sampler](https://github.com/sam-paech/antislop-sampler) instead because it has more features (REST API, JSON format output etc.)
+The Antislop Strategy is used to ban certain phrases. Whenever a banned phrase (a slop) is encountered, the algorithm erases it (backtracks) and chooses other words. The algorithm used [antislop-sampler](https://github.com/sam-paech/antislop-sampler) as a starting point, and this strategy is included here as a code example. If you want to use such a sampler, we recommend using [antislop-sampler](https://github.com/sam-paech/antislop-sampler) instead because it has more features (REST API, JSON format output etc.)
 
 ### * Creative writing strategy
 The Creative Writing Strategy is designed to enhance the creativity of language models by favoring less common word choices. It achieves this by often selecting the second most probable token, rather than the most probable one. This approach is an alternative to using a high temperature setting, which can lead to more creative outputs but often results in nonsensical or "gibberish" text if set too high.
