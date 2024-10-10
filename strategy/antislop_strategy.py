@@ -1,6 +1,6 @@
 import torch
 from typing import List, Optional
-from .backtrack_strategy import BaseStrategy
+from .base_strategy import BaseStrategy
 from provider.base_provider import BaseProvider
 
 class AntiSlopStrategy(BaseStrategy):
