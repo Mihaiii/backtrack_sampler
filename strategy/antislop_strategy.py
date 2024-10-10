@@ -56,14 +56,15 @@ class AntiSlopStrategy(BaseStrategy):
     def _tokenize_slop_variants(self) -> list[list[int]]:
         token_sequences = []
         for slop in self.slops:
-            variants = [
+            variants = set([
+                slop,
                 slop.lower(),
                 slop.capitalize(),
                 slop.upper(),
                 f" {slop.lower()}",
                 f" {slop.capitalize()}",
                 f" {slop.upper()}",
-            ]
+            ])
             for variant in variants:
                 token_ids = self.provider.encode(variant, add_special_tokens=False)
                 if token_ids:
