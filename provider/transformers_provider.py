@@ -13,6 +13,7 @@ class TransformersProvider(BaseProvider):
         self.model = model.to(device)
         self.tokenizer = tokenizer
         self.past_key_values = DynamicCache()
+        self.device = device
 
     def encode(self, text: str, add_special_tokens: bool=True) -> List[int]:
         return self.tokenizer.encode(text, add_special_tokens=add_special_tokens)
@@ -20,9 +21,10 @@ class TransformersProvider(BaseProvider):
     def decode(self, tokens: List[int]) -> str:
         return self.tokenizer.decode(tokens)
 
-    def generate(self, input_ids: torch.Tensor, *args, **kwargs) -> torch.Tensor:
+    def generate(self, input_ids: List[int], *args, **kwargs) -> torch.Tensor:
+        input = torch.tensor([input_ids], device=self.device)
         outputs = self.model.generate(
-            input_ids,
+            input,
             max_new_tokens=1,
             do_sample=False,
             temperature=1,
@@ -47,3 +49,5 @@ class TransformersProvider(BaseProvider):
     def on_finish(self) -> None:
         del self.past_key_values
         self.past_key_values = DynamicCache()
+        if self.device.type == 'cuda':
+            torch.cuda.empty_cache()

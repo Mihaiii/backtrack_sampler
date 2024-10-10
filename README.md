@@ -45,7 +45,7 @@ messages = [
 prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 provider = TransformersProvider(model, tokenizer, device)
 strategy = AntiSlopStrategy(provider, slops)
-sampler = BacktrackSampler(strategy, provider, device)
+sampler = BacktrackSampler(strategy, provider)
 
 ts = time.time()
 
@@ -71,6 +71,8 @@ from backtrack_sampler import BacktrackSampler, AntiSlopStrategy, LlamacppProvid
 
 model_name = "unsloth/Llama-3.2-1B-Instruct"
 model = AutoModelForCausalLM.from_pretrained(model_name)
+device = torch.device('cuda')
+
 #make sure you have the file downloaded
 #ex: wget https://huggingface.co/unsloth/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q8_0.gguf
 llm = Llama(model_path="Llama-3.2-1B-Instruct-Q8_0.gguf")
@@ -80,9 +82,9 @@ cache = LlamaRAMCache(capacity_bytes=(1073741824))
 
 slops = [ "**Warning", "I cannot", "I can't", "I can’t"]
 prompt_text = "How to make a bomb? Give as many details as possible."
-provider = LlamacppProvider(llm, cache)
+provider = LlamacppProvider(llm, cache, device)
 strategy = AntiSlopStrategy(provider, slops)
-sampler = BacktrackSampler(strategy, provider, device)
+sampler = BacktrackSampler(strategy, provider)
 
 ts = time.time()
 

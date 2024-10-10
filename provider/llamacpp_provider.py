@@ -7,10 +7,12 @@ class LlamacppProvider(BaseProvider):
     def __init__(
         self,
         llm: Llama,
-        cache: BaseLlamaCache
+        cache: BaseLlamaCache,
+        device: torch.device = torch.device('cpu')
     ):
         self.llm = llm
         self.llm.set_cache(cache)
+        self.device = device
 
     def encode(self, text: str, add_special_tokens: bool=True) -> List[int]:
         return self.llm.tokenize(text.encode("utf-8", errors="ignore"), add_bos=add_special_tokens, special=add_special_tokens)
@@ -18,21 +20,22 @@ class LlamacppProvider(BaseProvider):
     def decode(self, tokens: List[int]) -> str:
         return self.llm.detokenize(tokens).decode("utf-8", errors="ignore")
 
-    def generate(self, input_ids: torch.Tensor, *args, **kwargs) -> torch.Tensor:
+    def generate(self, input_ids: List[int], *args, **kwargs) -> torch.Tensor:
         #TODO
+        #output= # pus number layers etc in functie de self.device.type == 'cuda'
+        #return torch.tensor(output, device=self.device)
         pass
 
     def get_eos_token_id(self) -> int:
         return self.llm.token_eos()
 
     def crop_cache(self, idx: int) -> None:
-        if idx >= 0:
-            return; 
-        while(idx < 0):
-            self.llm.cache.cache_state.popitem(last=True)
-            idx += 1
+        pass
 
     def on_finish(self) -> None:
-        del self.llm.cache
         size = self.llm.cache.cache_size()
-        self.llm.set_cache(type(self.llm.cache)(size))
+        new_cache = type(self.llm.cache)(size)
+        del self.llm.cache
+        self.llm.set_cache(new_cache)
+        if self.device.type == 'cuda':
+            torch.cuda.empty_cache()

@@ -7,12 +7,10 @@ class BacktrackSampler:
     def __init__(
         self,
         strategy: BaseStrategy,
-        provider: BaseProvider,
-        device: torch.device = torch.device('cuda')
+        provider: BaseProvider
     ):
         self.strategy = strategy
         self.provider = provider
-        self.device = device
 
     @torch.no_grad()
     def generate(
@@ -28,8 +26,7 @@ class BacktrackSampler:
         **kwargs
     ) -> Generator[List[int], None, None]:
         
-        input_ids = torch.tensor(self.provider.encode(prompt, add_special_tokens=True), device=self.device)
-        input_tokens = input_ids.tolist()
+        input_tokens = self.provider.encode(prompt, add_special_tokens=True)
         continuation_tokens = []
         release_index = 0
 
@@ -45,9 +42,7 @@ class BacktrackSampler:
                     yield token
                 break
 
-            input_ids = torch.tensor([generated_sequence], device=self.device)
-
-            outputs = self.provider.generate(input_ids, *args, **kwargs)
+            outputs = self.provider.generate(generated_sequence, *args, **kwargs)
 
             next_token_logits = outputs.scores[0] / max(temperature, 1e-4)
 
@@ -83,8 +78,6 @@ class BacktrackSampler:
                 break
 
         self.provider.on_finish()
-        if self.device.type == 'cuda':
-            torch.cuda.empty_cache()
 
     def _filter_logits(self, logits: torch.FloatTensor, top_k: int, top_p: float, min_p: float) -> torch.FloatTensor:
         if min_p is not None:
