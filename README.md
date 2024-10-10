@@ -3,7 +3,7 @@
 # backtrack_sampler
 backtrack_sampler was built for experimenting with custom sampling algorithms (strategies) that can backtrack/undo/rewind/reverse the latest generated tokens.
  
-**The code is short, simple and easy to understand.**
+## The code is short, simple and easy to understand.
  
 If you want to make your own sampling algorithm, create a new file in the `/strategy` folder. Remember to submit a PR with it! The more strategies we have to experiment with, the better.
  
