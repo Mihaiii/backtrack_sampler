@@ -21,7 +21,11 @@ pip install backtrack_sampler transformers
 pip install backtrack_sampler llama-cpp-python torch
 ```
 
+
 ## Usage examples
+
+### * transformers
+
 ```python
 import torch
 import time
@@ -56,6 +60,8 @@ for tokens in token_stream:
 
 print(f"\nDuration: {time.time()-ts} seconds")
 ```
+
+### * llama_cpp
 
 ```python
 import torch
