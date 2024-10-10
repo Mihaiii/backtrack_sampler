@@ -59,7 +59,7 @@ print(f"\nDuration: {time.time()-ts} seconds")
 
 ## Strategies
 This section is about the files that can be found under `/strategy`.
-Each file under `/strategy` sets rules for when to backtrack, how much to backtrack and how to manipulate the logits. Since this package is made for experimenting, we highly encourage you to make your own file that and set your own rules for backtracking.
+Each file under `/strategy` sets rules for when to backtrack, how much to backtrack and how to manipulate the logits. Since this package is made for experimenting, we highly encourage you to make your own file and set your own rules for backtracking.
 
 At the moment, we have 2 strategies available:
 ### * Antislop strategy
