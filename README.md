@@ -26,9 +26,7 @@ pip install backtrack_sampler llama-cpp-python torch
 import torch
 import time
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from backtrack_sampler import BacktrackSampler
-from strategy.antislop_strategy import AntiSlopStrategy
-from provider.transformers_provider import TransformersProvider
+from backtrack_sampler import BacktrackSampler, AntiSlopStrategy, TransformersProvider
 
 model_name = "unsloth/Llama-3.2-1B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -46,6 +44,7 @@ strategy = AntiSlopStrategy(provider, slops)
 sampler = BacktrackSampler(strategy, provider, device)
 
 ts = time.time()
+
 token_stream = sampler.generate(
     prompt=prompt,
     max_new_tokens=2048,
