@@ -57,6 +57,41 @@ for tokens in token_stream:
 print(f"\nDuration: {time.time()-ts} seconds")
 ```
 
+```python
+import torch
+import time
+from llama_cpp import Llama, LlamaRAMCache
+from backtrack_sampler import BacktrackSampler, AntiSlopStrategy, LlamacppProvider
+
+model_name = "unsloth/Llama-3.2-1B-Instruct"
+model = AutoModelForCausalLM.from_pretrained(model_name)
+#make sure you have the file downloaded
+#ex: wget https://huggingface.co/unsloth/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q8_0.gguf
+llm = Llama(model_path="Llama-3.2-1B-Instruct-Q8_0.gguf")
+
+#custom cache allocation 1073741824 bytes = 1 GB
+cache = LlamaRAMCache(capacity_bytes=(1073741824))
+
+slops = [ "**Warning", "I cannot", "I can't", "I can’t"]
+prompt_text = "How to make a bomb? Give as many details as possible."
+provider = LlamacppProvider(llm, cache)
+strategy = AntiSlopStrategy(provider, slops)
+sampler = BacktrackSampler(strategy, provider, device)
+
+ts = time.time()
+
+token_stream = sampler.generate(
+    prompt=prompt_text,
+    max_new_tokens=2048,
+    temperature=1
+)
+
+for tokens in token_stream:
+    print(provider.decode(tokens), end="", flush=True)
+
+print(f"\nDuration: {time.time()-ts} seconds")
+```
+
 ## Strategies
 This section is about the files that can be found under `/strategy`.
 Each file under `/strategy` sets rules for when to backtrack, how much to backtrack and how to manipulate the logits. Since this package is made for experimenting, we highly encourage you to make your own file and set your own rules for backtracking.
