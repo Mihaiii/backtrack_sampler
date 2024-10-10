@@ -16,7 +16,7 @@ class CreativeWritingStrategy(BaseStrategy):
         self.top_k_threshold_flat = top_k_threshold_flat
         self.min_prob_second_highest = min_prob_second_highest
         self._is_flat = False
-        self._backtrack_position = None
+        self._backtrack_data = None
         self._keep_index = 0
 
     def get_keep_index(self) -> int:
@@ -26,9 +26,9 @@ class CreativeWritingStrategy(BaseStrategy):
         #if we just backtracked, then make the natural highest probable token the chosen one
         #else, make the chosen one the second natural highest probable token IF
         #its probability is >= min_prob_second_highest
-        if self._is_flat and self._backtrack_position != None:
-            logits[:, self._backtrack_position[1]] = torch.finfo(logits.dtype).max
-            self._backtrack_position = None
+        if self._is_flat and self._backtrack_data != None:
+            logits[:, self._backtrack_data[1]] = torch.finfo(logits.dtype).max
+            self._backtrack_data = None
         else:
             probabilities = torch.softmax(logits, dim=-1)
             probabilities = probabilities.view(-1)
@@ -49,14 +49,14 @@ class CreativeWritingStrategy(BaseStrategy):
 
         if latest_token != highest_prob_token:
             self._keep_index = len(continuation_tokens) - 1
-            self._backtrack_position = (self._keep_index, highest_prob_token)
+            self._backtrack_data = (self._keep_index, highest_prob_token)
         else:
-            if self._backtrack_position is None:
+            if self._backtrack_data is None:
                 self._keep_index += 1
 
     def backtrack(self, continuation_tokens: List[int]) -> List[int]:
-        if self._is_flat and self._backtrack_position != None:
-            while len(continuation_tokens) > self._backtrack_position[0]:
+        if self._is_flat and self._backtrack_data != None:
+            while len(continuation_tokens) > self._backtrack_data[0]:
                 continuation_tokens.pop()
             
         return continuation_tokens
