@@ -45,4 +45,5 @@ class TransformersProvider(BaseProvider):
         self.past_key_values.crop(idx)
 
     def on_finish(self) -> None:
+        del self.past_key_values
         self.past_key_values = DynamicCache()

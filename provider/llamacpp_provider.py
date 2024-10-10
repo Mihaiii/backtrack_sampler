@@ -13,16 +13,16 @@ class LlamacppProvider(BaseProvider):
         self.llm.set_cache(cache)
 
     def encode(self, text: str, add_special_tokens: bool=True) -> List[int]:
-        return llm.tokenize(text.encode("utf-8", errors="ignore"), add_bos=add_special_tokens, special=add_special_tokens)
+        return self.llm.tokenize(text.encode("utf-8", errors="ignore"), add_bos=add_special_tokens, special=add_special_tokens)
 
     def decode(self, tokens: List[int]) -> str:
-        return llm.detokenize(tokens).decode("utf-8", errors="ignore")
+        return self.llm.detokenize(tokens).decode("utf-8", errors="ignore")
 
     def generate(self, input_ids: torch.Tensor, *args, **kwargs) -> torch.Tensor:
         pass
 
     def get_eos_token_id(self) -> int:
-        return llm.token_eos()
+        return self.llm.token_eos()
 
     def crop_cache(self, idx: int) -> None:
         if idx >= 0:
@@ -32,5 +32,6 @@ class LlamacppProvider(BaseProvider):
             idx += 1
 
     def on_finish(self) -> None:
-        size = llm.cache.cache_size()
+        del self.llm.cache
+        size = self.llm.cache.cache_size()
         self.llm.set_cache(type(self.llm.cache)(size))
