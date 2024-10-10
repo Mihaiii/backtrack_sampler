@@ -68,7 +68,7 @@ The Antislop Strategy is used to ban certain phrases. Whenever a banned phrase (
 ### * Creative writing strategy
 The Creative Writing Strategy is designed to enhance the creativity of language models by favoring less common word choices. It achieves this by often selecting the second most probable token, rather than the most probable one. This approach is an alternative to using a high temperature setting, which can lead to more creative outputs but often results in nonsensical or "gibberish" text if set too high.
 
-When the probability distribution of potential next tokens is too flat (i.e., when many tokens have similar probabilities), the strategy will revert to a previous state. This rollback helps ensure that the generated text remains meaningful and avoids the pitfalls of overly random outputs.
+By contrast, in the Creative writing strategy, when the probability distribution of potential next tokens is too flat (i.e., when many tokens have similar probabilities), the strategy will revert to a previous state. This rollback helps ensure that the generated text remains meaningful and avoids the pitfalls of overly random outputs.
 
 ## Thanks / credit
 - [Sam Paech](https://x.com/sam_paech) for making [antislop-sampler](https://github.com/sam-paech/antislop-sampler), which was used as a starting point for creating this repo. Some parts of the code are still from the original repo.
