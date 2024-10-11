@@ -1,6 +1,6 @@
 import torch
 from typing import List, Optional
-from .base_strategy import BaseStrategy
+from strategy.base_strategy import BaseStrategy
 from provider.base_provider import BaseProvider
 
 

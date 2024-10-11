@@ -28,7 +28,8 @@ pip install backtrack_sampler llama-cpp-python torch
 import torch
 import time
 from transformers import AutoTokenizer, AutoModelForCausalLM
-from backtrack_sampler import BacktrackSampler, AntiSlopStrategy, TransformersProvider
+from backtrack_sampler import BacktrackSampler, AntiSlopStrategy
+from backtrack_sampler.provider.transformers_provider import TransformersProvider
 
 model_name = "unsloth/Llama-3.2-1B-Instruct"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -65,7 +66,8 @@ print(f"\nDuration: {time.time()-ts} seconds")
 import torch
 import time
 from llama_cpp import Llama, LlamaRAMCache
-from backtrack_sampler import BacktrackSampler, AntiSlopStrategy, LlamacppProvider
+from backtrack_sampler import BacktrackSampler, AntiSlopStrategy
+from backtrack_sampler.provider.llamacpp_provider import LlamacppProvider
 
 #make sure you have the file downloaded
 #ex: wget https://huggingface.co/unsloth/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q8_0.gguf
