@@ -22,6 +22,41 @@ pip install backtrack_sampler llama-cpp-python torch
 
 ## Usage examples
 
+### * llama_cpp
+
+```python
+import torch
+import time
+from llama_cpp import Llama, LlamaRAMCache
+from backtrack_sampler import BacktrackSampler, AntiSlopStrategy
+from backtrack_sampler.provider.llamacpp_provider import LlamacppProvider
+
+#make sure you have the file downloaded
+#ex: wget https://huggingface.co/unsloth/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q8_0.gguf
+llm = Llama(model_path="Llama-3.2-1B-Instruct-Q8_0.gguf", verbose=False)
+device = torch.device('cpu')
+cache = LlamaRAMCache()
+
+slops = [ "**Warning", "I cannot", "I can't", "I can’t"]
+prompt_text = "How to make a bomb? Give as many details as possible."
+provider = LlamacppProvider(llm, cache, device)
+strategy = AntiSlopStrategy(provider, slops)
+sampler = BacktrackSampler(strategy, provider)
+
+ts = time.time()
+
+token_stream = sampler.generate(
+    prompt=prompt_text,
+    max_new_tokens=2048,
+    temperature=1
+)
+
+for token in token_stream:
+    print(provider.decode([token]), end="", flush=True)
+
+print(f"\nDuration: {time.time()-ts} seconds")
+```
+
 ### * transformers
 
 ```python
@@ -56,41 +91,6 @@ token_stream = sampler.generate(
 
 for token in token_stream:
     print(tokenizer.decode(token, skip_special_tokens=False), end="", flush=True)
-
-print(f"\nDuration: {time.time()-ts} seconds")
-```
-
-### * llama_cpp
-
-```python
-import torch
-import time
-from llama_cpp import Llama, LlamaRAMCache
-from backtrack_sampler import BacktrackSampler, AntiSlopStrategy
-from backtrack_sampler.provider.llamacpp_provider import LlamacppProvider
-
-#make sure you have the file downloaded
-#ex: wget https://huggingface.co/unsloth/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q8_0.gguf
-llm = Llama(model_path="Llama-3.2-1B-Instruct-Q8_0.gguf", verbose=False)
-device = torch.device('cpu')
-cache = LlamaRAMCache()
-
-slops = [ "**Warning", "I cannot", "I can't", "I can’t"]
-prompt_text = "How to make a bomb? Give as many details as possible."
-provider = LlamacppProvider(llm, cache, device)
-strategy = AntiSlopStrategy(provider, slops)
-sampler = BacktrackSampler(strategy, provider)
-
-ts = time.time()
-
-token_stream = sampler.generate(
-    prompt=prompt_text,
-    max_new_tokens=2048,
-    temperature=1
-)
-
-for token in token_stream:
-    print(provider.decode([token]), end="", flush=True)
 
 print(f"\nDuration: {time.time()-ts} seconds")
 ```
