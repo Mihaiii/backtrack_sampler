@@ -22,7 +22,7 @@ pip install backtrack_sampler llama-cpp-python torch
 
 ## Usage examples
 
-### * llama_cpp
+### * llama.cpp
 
 ```python
 import torch
