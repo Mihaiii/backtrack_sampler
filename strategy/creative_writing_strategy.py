@@ -7,7 +7,7 @@ class CreativeWritingStrategy(BaseStrategy):
     def __init__(self, top_p_flat: float = 0.8, top_k_threshold_flat: int = 3, min_prob_second_highest: float = 0.25):
         """
         top_p_flat: How many top tokens' probabilities sum up to this number?
-        top_k_threshold_flat: If top_k_threshold_flat <= number of tokens that make up the top_p_flat value, then the distribution is considered flatten. The higher top_k_threshold_flat is, the less often
+        top_k_threshold_flat: If top_k_threshold_flat <= number of tokens that make up the top_p_flat value, then the distribution is considered flattened. The higher top_k_threshold_flat is, the less often
             the algo will rollback.
         min_prob_second_highest: The minimum probability the second most probable token token must have
             in order to always be selected as next tokon.
