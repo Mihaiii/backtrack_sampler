@@ -36,7 +36,7 @@ class LlamacppProvider(BaseProvider):
              *args, **kwargs
         )
         logits = self.llm._scores[-1, :]
-        return torch.tensor([logits], device=self.device)
+        return torch.from_numpy(logits).unsqueeze(0).to(self.device)
 
     def get_eos_token_id(self) -> int:
         return self.llm.token_eos()
