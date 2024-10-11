@@ -9,7 +9,7 @@ class BaseStrategy(ABC):
         """
         We keep in memory without sending to the client (yet) the tokens starting from this index
         because we might want to rollback at a future point in time.
-        Everything up until (but not included!) this index
+        Everything up until (but not including!) this index
         is considered valid token generation that can't be rollbacked and therefore
         can be sent to the client.
         """
