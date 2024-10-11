@@ -2,6 +2,7 @@ import torch
 from abc import ABC, abstractmethod
 from typing import List
 
+
 class BaseStrategy(ABC):
     @abstractmethod
     def get_keep_index(self) -> int:
@@ -25,7 +26,7 @@ class BaseStrategy(ABC):
     @abstractmethod
     def on_next_token(self, continuation_tokens: List[int], probs: torch.FloatTensor) -> None:
         pass
-    
+
     @abstractmethod
     def backtrack(self, continuation_tokens: List[int]) -> List[int]:
         pass

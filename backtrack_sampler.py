@@ -3,6 +3,7 @@ from typing import List, Generator
 from strategy.base_strategy import BaseStrategy
 from provider.base_provider import BaseProvider
 
+
 class BacktrackSampler:
     def __init__(
         self,
@@ -19,13 +20,13 @@ class BacktrackSampler:
         max_length: int = None,
         max_new_tokens: int = None,
         temperature: float = 1.0,
-        top_k: int = 50, #same as HF's transformers default value
+        top_k: int = 50,  # same as HF's transformers default value
         top_p: float = None,
         min_p: float = None,
-        *args, 
+        *args,
         **kwargs
     ) -> Generator[List[int], None, None]:
-        
+
         input_tokens = self.provider.encode(prompt, add_special_tokens=True)
         continuation_tokens = []
         release_index = 0
@@ -34,30 +35,33 @@ class BacktrackSampler:
             generated_sequence = input_tokens + continuation_tokens
             if max_length is not None and len(generated_sequence) >= max_length:
                 for token in continuation_tokens[release_index:]:
-                    yield token           
+                    yield token
                 break
-            
+
             if max_new_tokens is not None and len(continuation_tokens) >= max_new_tokens:
                 for token in continuation_tokens[release_index:]:
                     yield token
                 break
 
-            outputs = self.provider.generate(generated_sequence, *args, **kwargs)
+            outputs = self.provider.generate(
+                generated_sequence, *args, **kwargs)
 
             next_token_logits = outputs / max(temperature, 1e-4)
 
             # Opportunity to apply strategy-specific penalty
-            next_token_logits = self.strategy.on_logits(next_token_logits, continuation_tokens)
-            
+            next_token_logits = self.strategy.on_logits(
+                next_token_logits, continuation_tokens)
+
             # Apply min_p, top-k and top-p filtering
-            filtered_logits = self._filter_logits(next_token_logits, top_k, top_p, min_p)
+            filtered_logits = self._filter_logits(
+                next_token_logits, top_k, top_p, min_p)
 
             probs = torch.softmax(filtered_logits, dim=-1)
-            
+
             probs = self.strategy.on_probs(probs, continuation_tokens)
-            
+
             next_token = torch.multinomial(probs, num_samples=1).item()
-            
+
             continuation_tokens.append(next_token)
             self.strategy.on_next_token(continuation_tokens, probs)
 
@@ -65,9 +69,9 @@ class BacktrackSampler:
             # Apply backtracking if necessary
             continuation_tokens = self.strategy.backtrack(continuation_tokens)
 
-            if(intial_len > len(continuation_tokens)):
+            if (intial_len > len(continuation_tokens)):
                 self.provider.crop_cache(len(continuation_tokens) - intial_len)
-            
+
             while release_index < self.strategy.get_keep_index() - 1:
                 yield continuation_tokens[release_index]
                 release_index += 1
@@ -94,10 +98,12 @@ class BacktrackSampler:
 
         if top_p is not None and top_p < 1.0:
             sorted_logits, sorted_indices = torch.sort(logits, descending=True)
-            cumulative_probs = torch.cumsum(torch.softmax(sorted_logits, dim=-1), dim=-1)
+            cumulative_probs = torch.cumsum(
+                torch.softmax(sorted_logits, dim=-1), dim=-1)
 
             sorted_indices_to_remove = cumulative_probs > top_p
-            sorted_indices_to_remove[:, 1:] = sorted_indices_to_remove[:, :-1].clone()
+            sorted_indices_to_remove[:,
+                                     1:] = sorted_indices_to_remove[:, :-1].clone()
             sorted_indices_to_remove[:, 0] = False
             indices_to_remove = sorted_indices_to_remove.scatter(
                 dim=1, index=sorted_indices, src=sorted_indices_to_remove

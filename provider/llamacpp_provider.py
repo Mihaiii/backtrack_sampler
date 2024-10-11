@@ -3,6 +3,7 @@ import torch
 from typing import List
 from llama_cpp import Llama, BaseLlamaCache
 
+
 class LlamacppProvider(BaseProvider):
     def __init__(
         self,
@@ -11,12 +12,12 @@ class LlamacppProvider(BaseProvider):
         device: torch.device = torch.device('cpu')
     ):
         self.llm = llm
-        self.llm.logits_all=True
-        self.llm.context_params.logits_all=True
+        self.llm.logits_all = True
+        self.llm.context_params.logits_all = True
         self.llm.set_cache(cache)
         self.device = device
 
-    def encode(self, text: str, add_special_tokens: bool=True) -> List[int]:
+    def encode(self, text: str, add_special_tokens: bool = True) -> List[int]:
         return self.llm.tokenize(text.encode("utf-8", errors="ignore"), add_bos=add_special_tokens, special=add_special_tokens)
 
     def decode(self, tokens: List[int]) -> str:
@@ -33,7 +34,7 @@ class LlamacppProvider(BaseProvider):
             top_p=1,
             top_k=9999999999999999,
             min_p=0,
-             *args, **kwargs
+            *args, **kwargs
         )
         logits = self.llm._scores[-1, :]
         return torch.from_numpy(logits).unsqueeze(0).to(self.device)

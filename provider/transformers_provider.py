@@ -3,6 +3,7 @@ import torch
 from typing import List
 from transformers import PreTrainedTokenizer, PreTrainedModel, DynamicCache
 
+
 class TransformersProvider(BaseProvider):
     def __init__(
         self,
@@ -15,7 +16,7 @@ class TransformersProvider(BaseProvider):
         self.past_key_values = DynamicCache()
         self.device = device
 
-    def encode(self, text: str, add_special_tokens: bool=True) -> List[int]:
+    def encode(self, text: str, add_special_tokens: bool = True) -> List[int]:
         return self.tokenizer.encode(text, add_special_tokens=add_special_tokens)
 
     def decode(self, tokens: List[int]) -> str:
