@@ -35,8 +35,7 @@ class LlamacppProvider(BaseProvider):
             min_p=0,
              *args, **kwargs
         )
-        #TODO: most probably the logprobs are sorted and I don't want them sorted. To investigate.
-        logits = list(output['choices'][0]['logprobs']['top_logprobs'][0].values())
+        logits = self.llm._scores[-1, :]
         return torch.tensor([logits], device=self.device)
 
     def get_eos_token_id(self) -> int:
