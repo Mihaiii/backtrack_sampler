@@ -1,7 +1,7 @@
 import torch
 from typing import List, Generator
-from strategy.base_strategy import BaseStrategy
-from provider.base_provider import BaseProvider
+from .strategy.base_strategy import BaseStrategy
+from .provider.base_provider import BaseProvider
 
 
 class BacktrackSampler:

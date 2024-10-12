@@ -32,8 +32,8 @@ from backtrack_sampler import BacktrackSampler, AntiSlopStrategy
 from backtrack_sampler.provider.llamacpp_provider import LlamacppProvider
 
 #make sure you have the file downloaded
-#ex: wget https://huggingface.co/unsloth/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q8_0.gguf
-llm = Llama(model_path="Llama-3.2-1B-Instruct-Q8_0.gguf", verbose=False)
+#ex: wget https://huggingface.co/unsloth/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q4_K_M.gguf
+llm = Llama(model_path="Llama-3.2-1B-Instruct-Q4_K_M.gguf", verbose=False)
 device = torch.device('cpu')
 cache = LlamaRAMCache()
 

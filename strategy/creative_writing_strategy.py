@@ -1,5 +1,5 @@
 import torch
-from strategy.base_strategy import BaseStrategy
+from .base_strategy import BaseStrategy
 from typing import List
 
 

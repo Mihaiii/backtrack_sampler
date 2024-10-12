@@ -1,4 +1,4 @@
-from provider.base_provider import BaseProvider
+from .base_provider import BaseProvider
 import torch
 from typing import List
 from llama_cpp import Llama, BaseLlamaCache
