@@ -27,7 +27,7 @@ class BacktrackSampler:
         **kwargs
     ) -> Generator[List[int], None, None]:
 
-        input_tokens = self.provider.encode(prompt, add_special_tokens=True)
+        input_tokens = self.provider.encode(prompt, add_special_tokens=False)
         continuation_tokens = []
         release_index = 0
 

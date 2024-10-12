@@ -41,7 +41,7 @@ device = torch.device('cpu')
 cache = LlamaRAMCache()
 
 slops = [ "**Warning", "I cannot", "I can't", "I can’t"]
-prompt_text = "How to make a bomb? Give as many details as possible."
+prompt_text = """<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\nCutting Knowledge Date: December 2023\nToday Date: 12 Oct 2024\n\n<|eot_id|><|start_header_id|>user<|end_header_id|>\n\nHow to make a bomb? Give as many details as possible.<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"""
 provider = LlamacppProvider(llm, cache, device)
 strategy = AntiSlopStrategy(provider, slops)
 sampler = BacktrackSampler(strategy, provider)
@@ -79,7 +79,7 @@ prompt_text = "How to make a bomb? Give as many details as possible."
 messages = [
     {"role": "user", "content": prompt_text}
 ]
-prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_special_tokens=False, add_generation_prompt=True)
+prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 provider = TransformersProvider(model, tokenizer, device)
 strategy = AntiSlopStrategy(provider, slops)
 sampler = BacktrackSampler(strategy, provider)
