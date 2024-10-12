@@ -29,7 +29,6 @@ class LlamacppProvider(BaseProvider):
             prompt,
             max_tokens=1,
             echo=False,
-            logprobs=9999999999999999,
             temperature=1,
             top_p=1,
             top_k=9999999999999999,
