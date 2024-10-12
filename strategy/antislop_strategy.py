@@ -17,7 +17,7 @@ class AntiSlopStrategy(BaseStrategy):
         self._keep_index = 0
 
         self.tokenized_slops = self._tokenize_slop_variants()
-        self.max_tokenized_slop = max(len(seq) for seq in self.tokenized_slops)
+        self.max_tokenized_slop = max((len(seq) for seq in self.tokenized_slops), default=0)
 
         self.slop_start_pos = None
         # We need this in order to avoid an infinite loop where multiple different slops are generated from the same position
