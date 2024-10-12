@@ -22,6 +22,10 @@ class BaseProvider(ABC):
 
     @abstractmethod
     def crop_cache(self, idx: int) -> None:
+        """
+        idx will be a negative number, meaning how much to discard at the end.
+        Ex: -2 idx means discard latest 2.
+        """
         pass
 
     @abstractmethod

@@ -45,7 +45,9 @@ class LlamacppProvider(BaseProvider):
         return self.llm.token_eos()
 
     def crop_cache(self, idx: int) -> None:
-        pass
+        while(idx < 0):
+            self.llm.cache.cache_state.popitem(last=True)
+            idx += 1
 
     def reset(self) -> None:
         size = self.llm.cache.cache_size
