@@ -47,7 +47,7 @@ class LlamacppProvider(BaseProvider):
     def crop_cache(self, idx: int) -> None:
         pass
 
-    def on_finish(self) -> None:
+    def reset(self) -> None:
         size = self.llm.cache.cache_size
         new_cache = type(self.llm.cache)(size)
         del self.llm.cache

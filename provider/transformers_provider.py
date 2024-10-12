@@ -47,7 +47,7 @@ class TransformersProvider(BaseProvider):
     def crop_cache(self, idx: int) -> None:
         self.past_key_values.crop(idx)
 
-    def on_finish(self) -> None:
+    def reset(self) -> None:
         del self.past_key_values
         self.past_key_values = DynamicCache()
         if self.device.type == 'cuda':

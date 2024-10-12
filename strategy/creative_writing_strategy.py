@@ -26,9 +26,7 @@ class CreativeWritingStrategy(BaseStrategy):
         self.top_p_flat = top_p_flat
         self.top_k_threshold_flat = top_k_threshold_flat
         self.eos_penalty = eos_penalty
-        self._is_flat = False
-        self._backtrack_data = None
-        self._keep_index = 0
+        self.reset()
 
     def get_keep_index(self) -> int:
         return self._keep_index
@@ -97,3 +95,8 @@ class CreativeWritingStrategy(BaseStrategy):
         )
 
         return self.top_k_threshold_flat <= num_top_tokens
+    
+    def reset(self) -> None:
+        self._is_flat = False
+        self._backtrack_data = None
+        self._keep_index = 0

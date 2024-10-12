@@ -80,8 +80,9 @@ class BacktrackSampler:
                 for token in continuation_tokens[release_index:]:
                     yield token
                 break
-
-        self.provider.on_finish()
+        
+        self.strategy.reset()
+        self.provider.reset()
 
     def _filter_logits(self, logits: torch.FloatTensor, top_k: int, top_p: float, min_p: float) -> torch.FloatTensor:
         if min_p is not None:

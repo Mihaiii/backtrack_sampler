@@ -30,3 +30,7 @@ class BaseStrategy(ABC):
     @abstractmethod
     def backtrack(self, continuation_tokens: List[int]) -> List[int]:
         pass
+    
+    @abstractmethod
+    def reset(self) -> None:
+        pass

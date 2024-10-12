@@ -25,5 +25,5 @@ class BaseProvider(ABC):
         pass
 
     @abstractmethod
-    def on_finish(self) -> None:
+    def reset(self) -> None:
         pass
