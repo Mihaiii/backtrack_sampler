@@ -20,7 +20,8 @@ class AntiSlopStrategy(BaseStrategy):
         self.max_tokenized_slop = max((len(seq) for seq in self.tokenized_slops), default=0)
 
         self.slop_start_pos = None
-        # We need this in order to avoid an infinite loop where multiple different slops are generated from the same position
+        # We need this in order to avoid an infinite loop where multiple different slops 
+        # are generated from the same position.
         # Basically we'll put all starting positions to -inf, not only the latest found.
         self.found_slop_tokens = {}
 

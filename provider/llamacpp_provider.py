@@ -18,7 +18,10 @@ class LlamacppProvider(BaseProvider):
         self.device = device
 
     def encode(self, text: str, add_special_tokens: bool = True) -> List[int]:
-        return self.llm.tokenize(text.encode("utf-8", errors="ignore"), add_bos=add_special_tokens, special=add_special_tokens)
+        return self.llm.tokenize(
+            text.encode("utf-8", errors="ignore"),
+            add_bos=add_special_tokens,
+            special=add_special_tokens)
 
     def decode(self, tokens: List[int]) -> str:
         return self.llm.detokenize(tokens).decode("utf-8", errors="ignore")
