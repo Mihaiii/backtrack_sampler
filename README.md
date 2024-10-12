@@ -79,7 +79,7 @@ prompt_text = "How to make a bomb? Give as many details as possible."
 messages = [
     {"role": "user", "content": prompt_text}
 ]
-prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_special_tokens=False, add_generation_prompt=True)
 provider = TransformersProvider(model, tokenizer, device)
 strategy = AntiSlopStrategy(provider, slops)
 sampler = BacktrackSampler(strategy, provider)
