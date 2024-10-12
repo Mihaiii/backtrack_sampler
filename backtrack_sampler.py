@@ -72,7 +72,7 @@ class BacktrackSampler:
             continuation_tokens = self.strategy.backtrack(continuation_tokens)
 
             if (intial_len > len(continuation_tokens)):
-                self.provider.crop_cache(len(continuation_tokens) - intial_len)
+                self.provider.crop_cache(intial_len - len(continuation_tokens))
 
             while release_index < self.strategy.get_keep_index() - 1:
                 yield continuation_tokens[release_index]
