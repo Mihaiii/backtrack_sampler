@@ -4,6 +4,9 @@ backtrack_sampler is a framework for experimenting with custom sampling algorith
 ## The code is short, simple and easy to understand
  
 If you want to implement your own sampling algorithm, create a new file in the `/strategy` directory. Remember to submit a PR with it! The more strategies we have to experiment with, the better.
+
+## Demo
+https://huggingface.co/spaces/Mihaiii/backtrack_sampler_demo
  
 ## Installation
 ```cmd
@@ -107,6 +110,8 @@ The Antislop Strategy is used to ban certain phrases. Whenever a banned phrase (
 The Creative Writing Strategy is designed to enhance the creativity of language models by favoring less common word choices. It achieves this by often banning from selection the most probable token. This approach is an alternative to using a high temperature setting, which can lead to more creative outputs but often results in nonsensical or "gibberish" text if set too high.
 
 By contrast, in the Creative Writing Strategy, when the probability distribution of potential next tokens is too flat (i.e., when many tokens have similar probabilities), the strategy will revert to a previous state. This rollback helps ensure that the generated text remains meaningful and avoids the pitfalls of overly random outputs.
+
+Here is a demo of the Creative Writing Strategy: https://huggingface.co/spaces/Mihaiii/backtrack_sampler_demo
 
 ## Thanks / credit
 - [Sam Paech](https://x.com/sam_paech) for making [antislop-sampler](https://github.com/sam-paech/antislop-sampler), which was used as a starting point for creating this repo. Some parts of the code are still from the original repo.
