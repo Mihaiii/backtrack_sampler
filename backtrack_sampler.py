@@ -27,6 +27,8 @@ class BacktrackSampler:
         **kwargs
     ) -> Generator[List[int], None, None]:
 
+        #We are expecting the prompt to already have special tokens.
+        #See the examples from README.md
         input_tokens = self.provider.encode(prompt, add_special_tokens=False)
         continuation_tokens = []
         release_index = 0
