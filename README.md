@@ -99,6 +99,8 @@ for token in token_stream:
 print(f"\nDuration: {time.time()-ts} seconds")
 ```
 
+For more usage examples and outputs, see [demo.ipynb](https://colab.research.google.com/github/Mihaiii/backtrack_sampler/blob/main/demo.ipynb).
+
 ## Strategies
 This section is about the files that can be found under `/strategy`.
 Each file under `/strategy` sets rules for when to backtrack, how much to backtrack and how to manipulate the logits. Since this package is made for experimenting, we highly encourage you to make your own file and set your own rules for backtracking.
