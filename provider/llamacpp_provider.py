@@ -1,14 +1,14 @@
 from .base_provider import BaseProvider
 import torch
 from typing import List
-from llama_cpp import Llama, BaseLlamaCache
+from llama_cpp import Llama, LlamaRAMCache
 
 
 class LlamacppProvider(BaseProvider):
     def __init__(
         self,
         llm: Llama,
-        cache: BaseLlamaCache,
+        cache: LlamaRAMCache,
         device: torch.device = torch.device('cpu')
     ):
         self.llm = llm
