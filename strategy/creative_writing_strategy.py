@@ -19,7 +19,7 @@ class CreativeWritingStrategy(BaseStrategy):
             the algo will rollback.
         eos_penalty: One commmon issue with this strategy is that it selects the eos too early when we ban
             the most probable token. Therefore, we can apply a penalty to the eos token.
-            Values is between 0 and 1 where 1 means no penalty and 0 means eos is never selected 
+            The value is between 0 and 1 where 1 means no penalty and 0 means eos is never selected 
             (in which case the generation will stop via the max_length or max_new_tokens settings).
         """
         self.eos_token = provider.get_eos_token_id()
