@@ -43,7 +43,10 @@ cache = LlamaRAMCache(capacity_bytes=100000000)
 
 prompt = "Tell me a short tale of a dragon who is afraid of heights."
 provider = LlamacppProvider(llm, cache, device)
-strategy = CreativeWritingStrategy(provider)
+strategy = CreativeWritingStrategy(provider, 
+                                   top_p_flat = 0.65,
+                                   top_k_threshold_flat = 9,
+                                   eos_penalty = 0.75)
 sampler = BacktrackSampler(provider, strategy)
 
 ts = time.time()
