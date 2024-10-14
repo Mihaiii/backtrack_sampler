@@ -40,7 +40,7 @@ llm = Llama(model_path="Llama-3.2-1B-Instruct-Q4_K_M.gguf", chat_format="llama-3
 device = torch.device('cpu')
 cache = LlamaRAMCache(capacity_bytes=100000000)
 
-prompt = "Write me a short story about a talking dog who wants to be a detective."
+prompt = "Tell me a short tale of a dragon who is afraid of heights."
 provider = LlamacppProvider(llm, cache, device)
 strategy = CreativeWritingStrategy(provider)
 sampler = BacktrackSampler(provider, strategy)
@@ -73,7 +73,7 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name)
 device = torch.device('cuda')
 
-slops = [ "**Warning", "I cannot", "I can't", "I can’t", "I can not"]
+slops = [ "**Warning", "I cannot", "I can't", "I can’t", "I can not", "can’t provide", "can't provide", "can not provide"]
 prompt_text = "How to make a bomb? Give as many details as possible."
 messages = [
     {"role": "user", "content": prompt_text}
@@ -87,7 +87,7 @@ ts = time.time()
 
 token_stream = sampler.generate(
     prompt=prompt,
-    max_new_tokens=2048,
+    max_new_tokens=1024,
     temperature=1
 )
 
