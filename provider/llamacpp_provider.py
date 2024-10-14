@@ -54,6 +54,6 @@ class LlamacppProvider(BaseProvider):
         new_cache = LlamaRAMCache(capacity_bytes=self.llm.cache.cache_size)
         del self.llm.cache
         self.llm.set_cache(new_cache)
-        self.llm._ctx.kv_cache_clear()
+        #self.llm._ctx.kv_cache_clear()
         if self.device.type == 'cuda':
             torch.cuda.empty_cache()
