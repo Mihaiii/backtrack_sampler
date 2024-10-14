@@ -6,7 +6,8 @@ Backtrack Sampler is a framework for experimenting with custom sampling algorith
 If you want to make your own sampling algorithm, create a new file in the `/strategy` directory that implements the [abstract base class](https://github.com/Mihaiii/backtrack_sampler/blob/main/strategy/base_strategy.py). Remember to submit a PR with it! The more strategies we have to experiment with, the better.
 
 ## Demo
-https://huggingface.co/spaces/Mihaiii/backtrack_sampler_demo
+- https://huggingface.co/spaces/Mihaiii/backtrack_sampler_demo
+- https://colab.research.google.com/github/Mihaiii/backtrack_sampler/blob/main/demo.ipynb
  
 ## Installation
 ```cmd
