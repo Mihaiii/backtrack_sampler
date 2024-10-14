@@ -92,7 +92,7 @@ token_stream = sampler.generate(
 )
 
 for token in token_stream:
-    print(tokenizer.decode(token, skip_special_tokens=False), end="", flush=True)
+    print(tokenizer.decode(token, skip_special_tokens=True), end="", flush=True)
 
 print(f"\nDuration: {time.time()-ts} seconds")
 ```
