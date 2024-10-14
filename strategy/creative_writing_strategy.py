@@ -28,6 +28,11 @@ class CreativeWritingStrategy(BaseStrategy):
         self.eos_penalty = eos_penalty
         self.reset()
 
+    def reset(self) -> None:
+        self._is_flat = False
+        self._backtrack_data = None
+        self._keep_index = 0
+        
     def get_keep_index(self) -> int:
         return self._keep_index
 
@@ -95,8 +100,3 @@ class CreativeWritingStrategy(BaseStrategy):
         )
 
         return self.top_k_threshold_flat <= num_top_tokens
-    
-    def reset(self) -> None:
-        self._is_flat = False
-        self._backtrack_data = None
-        self._keep_index = 0

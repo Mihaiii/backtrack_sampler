@@ -20,6 +20,14 @@ class AntiSlopStrategy(BaseStrategy):
 
         self.reset()
 
+    def reset(self) -> None:
+        self._keep_index = 0
+        self.slop_start_pos = None
+        # We need this in order to avoid an infinite loop where multiple different slops 
+        # are generated from the same position.
+        # Basically we'll put all starting positions to -inf, not only the latest found.
+        self.found_slop_tokens = {}
+        
     def get_keep_index(self) -> int:
         return self._keep_index
 
@@ -81,11 +89,3 @@ class AntiSlopStrategy(BaseStrategy):
                         min_index = i
                     break  # Found the first occurrence, move to next slop
         return min_index
-    
-    def reset(self) -> None:
-        self._keep_index = 0
-        self.slop_start_pos = None
-        # We need this in order to avoid an infinite loop where multiple different slops 
-        # are generated from the same position.
-        # Basically we'll put all starting positions to -inf, not only the latest found.
-        self.found_slop_tokens = {}

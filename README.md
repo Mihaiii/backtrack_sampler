@@ -3,7 +3,7 @@ backtrack_sampler is a framework for experimenting with custom sampling algorith
  
 ## The code is short, simple and easy to understand
  
-If you want to implement your own sampling algorithm, create a new file in the `/strategy` directory. Remember to submit a PR with it! The more strategies we have to experiment with, the better.
+If you want to make your own sampling algorithm, create a new file in the `/strategy` directory that implements the [abstract base class](https://github.com/Mihaiii/backtrack_sampler/blob/main/strategy/base_strategy.py). Remember to submit a PR with it! The more strategies we have to experiment with, the better.
 
 ## Demo
 https://huggingface.co/spaces/Mihaiii/backtrack_sampler_demo
@@ -43,7 +43,7 @@ cache = LlamaRAMCache()
 prompt = "Write me a short story about a talking dog who wants to be a detective."
 provider = LlamacppProvider(llm, cache, device)
 strategy = CreativeWritingStrategy(provider)
-sampler = BacktrackSampler(strategy, provider)
+sampler = BacktrackSampler(provider, strategy)
 
 ts = time.time()
 
@@ -81,7 +81,7 @@ messages = [
 prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
 provider = TransformersProvider(model, tokenizer, device)
 strategy = AntiSlopStrategy(provider, slops)
-sampler = BacktrackSampler(strategy, provider)
+sampler = BacktrackSampler(provider, strategy)
 
 ts = time.time()
 

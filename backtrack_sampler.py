@@ -1,17 +1,17 @@
 import torch
 from typing import List, Generator
-from .strategy.base_strategy import BaseStrategy
 from .provider.base_provider import BaseProvider
+from .strategy.base_strategy import BaseStrategy
 
 
 class BacktrackSampler:
     def __init__(
         self,
-        strategy: BaseStrategy,
-        provider: BaseProvider
+        provider: BaseProvider,
+        strategy: BaseStrategy
     ):
-        self.strategy = strategy
         self.provider = provider
+        self.strategy = strategy
 
     @torch.no_grad()
     def generate(
@@ -72,7 +72,7 @@ class BacktrackSampler:
             continuation_tokens = self.strategy.backtrack(continuation_tokens)
 
             if (intial_len > len(continuation_tokens)):
-                self.provider.crop_cache(intial_len - len(continuation_tokens))
+                self.provider.remove_latest_cache(intial_len - len(continuation_tokens))
 
             while release_index < self.strategy.get_keep_index() - 1:
                 yield continuation_tokens[release_index]
