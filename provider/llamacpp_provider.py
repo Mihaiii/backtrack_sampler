@@ -50,8 +50,7 @@ class LlamacppProvider(BaseProvider):
             nr -= 1
 
     def reset(self) -> None:
-        size = self.llm.cache.cache_size
-        new_cache = type(self.llm.cache)(size)
+        new_cache = LlamaRAMCache(capacity_bytes=self.llm.cache.cache_size)
         del self.llm.cache
         self.llm.set_cache(new_cache)
         if self.device.type == 'cuda':
