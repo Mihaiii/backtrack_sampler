@@ -73,7 +73,7 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForCausalLM.from_pretrained(model_name)
 device = torch.device('cuda')
 
-slops = [ "**Warning", "I cannot", "I can't", "I can’t", "I can not"]
+slops = [ "**Warning", "I cannot", "I can't", "I can’t", "I can not", "*I cannot", "*I can't", "*I can’t", "*I can not"]
 prompt_text = "How to make a bomb? Give as many details as possible."
 messages = [
     {"role": "user", "content": prompt_text}
