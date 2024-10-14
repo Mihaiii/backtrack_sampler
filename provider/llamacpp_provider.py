@@ -46,7 +46,8 @@ class LlamacppProvider(BaseProvider):
 
     def remove_latest_cache(self, nr: int) -> None:
         while(nr > 0):
-            self.llm.cache.cache_state.popitem(last=True)
+            if len(self.llm.cache.cache_state > 0):
+                self.llm.cache.cache_state.popitem(last=True)
             nr -= 1
 
     def reset(self) -> None:
