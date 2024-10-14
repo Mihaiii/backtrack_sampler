@@ -1,5 +1,5 @@
 # Backtrack Sampler
-backtrack_sampler is a framework for experimenting with custom sampling algorithms (strategies) that can backtrack/undo/rewind/reverse the latest generated tokens.
+Backtrack Sampler is a framework for experimenting with custom sampling algorithms (strategies) that can backtrack/undo/rewind/reverse the latest generated tokens.
  
 ## The code is short, simple and easy to understand
  
