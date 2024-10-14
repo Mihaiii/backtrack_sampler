@@ -51,7 +51,7 @@ class LlamacppProvider(BaseProvider):
             nr -= 1
 
     def reset(self) -> None:
-        new_cache = LlamaRAMCache(capacity_bytes=self.llm.cache.cache_size)
+        new_cache = LlamaRAMCache(capacity_bytes=self.llm.cache.capacity_bytes)
         del self.llm.cache
         self.llm.set_cache(new_cache)
         #self.llm._ctx.kv_cache_clear()
