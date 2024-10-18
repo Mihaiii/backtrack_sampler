@@ -34,7 +34,7 @@ class HumanGuidanceStrategy(BaseStrategy):
         result_index = curses.wrapper(self._menu, result, generated_text)
         # If the user selects the go back option, we'll backtrack by one token
         # Otherwise, we'll make the selected token 1000x more probable than it was before
-        if result_index == len(result) - 1:
+        if result_index >= self.top_k:
             self.go_back = True
         else:
             probs[:, list_indices[result_index]] *= 1000
