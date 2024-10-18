@@ -1,5 +1,5 @@
 import torch
-from typing import List, Optional
+from typing import List
 from .base_strategy import BaseStrategy
 from ..provider.base_provider import BaseProvider
 
