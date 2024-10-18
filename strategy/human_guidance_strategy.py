@@ -37,7 +37,7 @@ class HumanGuidanceStrategy(BaseStrategy):
         if result_index >= self.top_k:
             self.go_back = True
         else:
-            probs[:, list_indices[result_index]] *= 1000
+            probs[:, list_indices[result_index]] *= 10000
             probs = probs / probs.sum()
         return probs
 
