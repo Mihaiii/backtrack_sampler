@@ -5,9 +5,12 @@ from ..provider.base_provider import BaseProvider
 
 class DebugStrategy(BaseStrategy):
     def __init__(self, provider: BaseProvider):
-        self.idx = 0
         self.provider = provider
+        self.reset()
 
+    def reset(self) -> None:
+        self.idx = 0
+        
     def get_keep_index(self) -> int:
         return self.idx
 
@@ -25,6 +28,3 @@ class DebugStrategy(BaseStrategy):
 
     def backtrack(self, continuation_tokens: List[int]) -> List[int]:
         return continuation_tokens
-    
-    def reset(self) -> None:
-        pass
