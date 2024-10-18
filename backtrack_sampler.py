@@ -73,7 +73,7 @@ class BacktrackSampler:
             if (intial_len > len(continuation_tokens)):
                 self.provider.remove_latest_cache(intial_len - len(continuation_tokens))
 
-            while release_index < self.strategy.get_keep_index() - 1:
+            while release_index < self.strategy.get_keep_index():
                 yield continuation_tokens[release_index]
                 release_index += 1
 
