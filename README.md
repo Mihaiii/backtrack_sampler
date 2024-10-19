@@ -126,7 +126,7 @@ This is the simplest possible strategy and is used to debug logits/probs and as 
 ### * Human guidance strategy
 This strategy is designed to allow the user to manually select tokens to generate. It is useful to get a better understanding of the model's capabilities and to guide the generation process.
 
-![](https://github.com/Mihaiii/backtrack_sampler/hgs.gif)
+![](https://github.com/Mihaiii/backtrack_sampler/blob/main/hgs.gif)
 
 ## Thanks / credit
 - [Sam Paech](https://x.com/sam_paech) for making [antislop-sampler](https://github.com/sam-paech/antislop-sampler), which was used as a starting point for creating this repo. Some parts of the code are still from the original repo.
