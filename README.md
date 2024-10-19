@@ -124,7 +124,7 @@ Here is a demo of the Creative Writing Strategy: https://huggingface.co/spaces/M
 This is the simplest possible strategy and is used to debug logits/probs and as a skeleton for creating new strategies.
 
 ### * Human guidance strategy
-This strategy is designed to allow the user to manually select tokens to generate. It is useful to get a better understanding of the model's capabilities and to guide the generation process.
+This strategy is designed to allow the user to manually select tokens from the generated ones. It is useful to get a better understanding of the model's capabilities.
 
 ![](https://github.com/Mihaiii/backtrack_sampler/blob/main/hgs.gif)
 
