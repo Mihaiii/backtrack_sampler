@@ -27,17 +27,17 @@ class HumanGuidanceStrategy(BaseStrategy):
         for indices in list_indices:
             decoded_indices = self.provider.decode([indices])
             decoded_tokens.append(decoded_indices)
-        result = list(zip(decoded_tokens, top_k_probs.flatten().tolist()))
+        options = list(zip(decoded_tokens, top_k_probs.flatten().tolist()))
         if len(continuation_tokens) > 0:
-            result = result + [("Go back", None)]
+            options = options + [("Go back", None)]
         generated_text = self.provider.decode(continuation_tokens)
-        result_index = curses.wrapper(self._menu, result, generated_text)
+        selected_option_index = curses.wrapper(self._menu, options, generated_text)
         # If the user selects the go back option, we'll backtrack by one token
         # Otherwise, we'll make the selected token 1000x more probable than it was before
-        if result_index >= self.top_k:
+        if selected_option_index >= self.top_k:
             self.go_back = True
         else:
-            probs[:, list_indices[result_index]] *= 10000
+            probs[:, list_indices[selected_option_index]] *= 10000
             probs = probs / probs.sum()
         return probs
 
@@ -55,18 +55,18 @@ class HumanGuidanceStrategy(BaseStrategy):
             self.keep_idx = len(continuation_tokens)
         return continuation_tokens
     
-    def _menu(self, stdscr, options, title):
+    def _menu(self, stdscr, options, generated_text):
         curses.curs_set(0)  # Hide the cursor
         current_row = 0
 
         def get_display_text(option):
             if option[1] is None: # Go back option
-                return option[0]
-            return f"{option[0]} ({option[1]*100:.2f}%)"
+                return repr(option[0])
+            return repr(f"{option[0]} ({option[1]*100:.2f}%)")
                 
         def display_menu(stdscr, current_row):
             stdscr.clear()
-            stdscr.addstr(1, 2, title, curses.A_BOLD)
+            stdscr.addstr(1, 2, generated_text, curses.A_BOLD)
             
             for idx, row in enumerate(options):
                 x = 2
@@ -85,7 +85,11 @@ class HumanGuidanceStrategy(BaseStrategy):
             display_menu(stdscr, current_row)
             key = stdscr.getch()
 
-            if key == curses.KEY_UP and current_row > 0:
+            if key == curses.KEY_UP and current_row == 0:
+                current_row = len(options) - 1
+            elif key == curses.KEY_DOWN and current_row == len(options) - 1:
+                current_row = 0
+            elif key == curses.KEY_UP and current_row > 0:
                 current_row -= 1
             elif key == curses.KEY_DOWN and current_row < len(options) - 1:
                 current_row += 1
