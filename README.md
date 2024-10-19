@@ -124,7 +124,9 @@ Here is a demo of the Creative Writing Strategy: https://huggingface.co/spaces/M
 This is the simplest possible strategy and is used to debug logits/probs and as a skeleton for creating new strategies.
 
 ### * Human guidance strategy
-This strategy is designed to allow the user to manually select the next token from the top generated ones. It is useful to get a better understanding of the model's capabilities. This strategy relies on [curses](https://docs.python.org/3/howto/curses.html) for drawing, a library that's pre-installed on Linux and MacOS. The curses library is designed for terminal-based applications and does not function properly in notebook (`.ipynb` files) environments.
+This strategy is designed to allow the user to manually select the next token from the top generated ones. It is useful to get a better understanding of the model's capabilities.
+
+This strategy relies on [curses](https://docs.python.org/3/howto/curses.html) for drawing, a library that's pre-installed on Linux and MacOS. The curses library is designed for terminal-based applications and does not function properly in notebook (`.ipynb` files) environments.
 
 ![](https://github.com/Mihaiii/backtrack_sampler/blob/main/hgs.gif)
 
