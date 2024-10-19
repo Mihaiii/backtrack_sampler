@@ -33,7 +33,7 @@ class HumanGuidanceStrategy(BaseStrategy):
         generated_text = self.provider.decode(continuation_tokens)
         selected_option_index = curses.wrapper(self._menu, options, generated_text)
         # If the user selects the go back option, we'll backtrack by one token
-        # Otherwise, we'll make the selected token 1000x more probable than it was before
+        # Otherwise, we'll make the selected token 10000x more probable than it was before
         if selected_option_index >= self.top_k:
             self.go_back = True
         else:
@@ -46,9 +46,9 @@ class HumanGuidanceStrategy(BaseStrategy):
 
     def backtrack(self, continuation_tokens: List[int]) -> List[int]:
         if self.go_back:
-            #We go back twice: once for the latest generated token,
-            #whatever that might be, since we did not intervene,
-            #and once the actual go back case
+            # We go back twice: once for the latest generated token,
+            # whatever that might be, since we did not intervene,
+            # and once the actual go back case
             continuation_tokens.pop()
             continuation_tokens.pop()
             self.go_back = False
