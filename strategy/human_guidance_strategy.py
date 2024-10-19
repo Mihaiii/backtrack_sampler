@@ -59,6 +59,23 @@ class HumanGuidanceStrategy(BaseStrategy):
         curses.curs_set(0)  # Hide the cursor
         current_row = 0
 
+        def get_last_row_of_text(stdscr, text, start_row, max_width):
+            lines = []
+            for line in text.splitlines():  # Preserve explicit new lines
+                while len(line) > max_width:  # Wrap long lines
+                    lines.append(line[:max_width])
+                    line = line[max_width:]
+                lines.append(line)
+
+            # Calculate the last row where the text will be displayed
+            start_options_row = start_row + len(lines) - 1
+            return start_options_row
+
+        height, width = stdscr.getmaxyx()
+        start_row = 3
+        max_width = width
+        start_options_row = get_last_row_of_text(stdscr, generated_text, start_row, max_width)
+        
         def get_display_text(option):
             if option[1] is None: # Go back option
                 return repr(option[0])
@@ -70,7 +87,7 @@ class HumanGuidanceStrategy(BaseStrategy):
             
             for idx, row in enumerate(options):
                 x = 2
-                y = 3 + idx
+                y = start_options_row + idx
                 if idx == current_row:
                     stdscr.attron(curses.color_pair(1))  # Highlight selected row
                     stdscr.addstr(y, x, get_display_text(row))
