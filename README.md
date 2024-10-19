@@ -108,7 +108,8 @@ For more usage examples and outputs, see [demo.ipynb](https://colab.research.goo
 This section is about the files that can be found under `/strategy`.
 Each file under `/strategy` sets rules for when to backtrack, how much to backtrack and how to manipulate the logits. Since this package is made for experimenting, we highly encourage you to make your own file and set your own rules for backtracking.
 
-At the moment, we have 2 strategies available:
+At the moment, we have 4 strategies available:
+
 ### * Anti-slop strategy
 The Anti Slop Strategy is used to ban certain phrases. Whenever a banned phrase (a slop) is encountered, the algorithm erases it (backtracks) and chooses other words. The algorithm used [antislop-sampler](https://github.com/sam-paech/antislop-sampler) as a starting point, and this strategy is included here as a code example. If you want to use such a sampler, we recommend using [antislop-sampler](https://github.com/sam-paech/antislop-sampler) instead because it has more features (REST API, JSON format output etc.)
 
@@ -118,6 +119,14 @@ The Creative Writing Strategy is designed to enhance the creativity of language 
 By contrast, in the Creative Writing Strategy, when the probability distribution of potential next tokens is too flat (i.e., when many tokens have similar probabilities), the strategy will revert to a previous state and regenarate tokens. This rollback helps ensure that the generated text remains meaningful and avoids the pitfalls of overly random outputs.
 
 Here is a demo of the Creative Writing Strategy: https://huggingface.co/spaces/Mihaiii/backtrack_sampler_demo
+
+### * Debug strategy
+This is the simplest possible strategy and is used to debug logits/probs and as a skeleton for creating new strategies.
+
+### * Human guidance strategy
+This strategy is designed to allow the user to manually select tokens to generate. It is useful to get a better understanding of the model's capabilities and to guide the generation process.
+
+![](https://github.com/Mihaiii/backtrack_sampler/hgs.gif)
 
 ## Thanks / credit
 - [Sam Paech](https://x.com/sam_paech) for making [antislop-sampler](https://github.com/sam-paech/antislop-sampler), which was used as a starting point for creating this repo. Some parts of the code are still from the original repo.
