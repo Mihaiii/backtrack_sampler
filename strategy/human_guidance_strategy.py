@@ -5,9 +5,14 @@ from ..provider.base_provider import BaseProvider
 import curses
 
 class HumanGuidanceStrategy(BaseStrategy):
-    def __init__(self, provider: BaseProvider, top_k: int = 3):
+    def __init__(self, provider: BaseProvider, top_k: int = 3, min_autopass: float = 1.0):
+        """
+        top_k: The number of top tokens to consider for the human guidance menu.
+        min_autopass: The minimum probability of the most probable token for the autopass to be triggered.
+        """
         self.provider = provider
         self.top_k = top_k
+        self.min_autopass = min_autopass
         self.reset()
 
     def reset(self) -> None:
@@ -22,16 +27,20 @@ class HumanGuidanceStrategy(BaseStrategy):
 
     def on_probs(self, probs: torch.FloatTensor, continuation_tokens: List[int]) -> torch.FloatTensor:
         top_k_probs, top_k_indices = torch.topk(probs, self.top_k)
+        list_probs = top_k_probs.flatten().tolist()
         list_indices = top_k_indices.flatten().tolist()
         decoded_tokens = []
         for indices in list_indices:
             decoded_indices = self.provider.decode([indices])
             decoded_tokens.append(decoded_indices)
-        options = list(zip(decoded_tokens, top_k_probs.flatten().tolist()))
+        options = list(zip(decoded_tokens, list_probs))
         if len(continuation_tokens) > 0:
             options = options + [("Go back", None)]
         generated_text = self.provider.decode(continuation_tokens)
-        selected_option_index = curses.wrapper(self._menu, options, generated_text)
+        selected_option_index = 0
+        if list_probs[0] < self.min_autopass:
+            selected_option_index = curses.wrapper(self._menu, options, generated_text)
+            
         # If the user selects the go back option, we'll backtrack by one token
         # Otherwise, we'll make the selected token 10000x more probable than it was before
         if selected_option_index >= self.top_k:
