@@ -9,6 +9,8 @@ class HumanGuidanceStrategy(BaseStrategy):
         """
         top_k: The number of top tokens to consider for the human guidance menu.
         min_autopass: The minimum probability of the most probable token for the autopass to be triggered.
+            Value is between 0 and 1, where 0 means the menu for manual selection is never shown and the
+            top token will always be selected (same as temperature=0) and 1 means the menu is always shown.
         """
         self.provider = provider
         self.top_k = top_k
