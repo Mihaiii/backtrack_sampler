@@ -21,15 +21,14 @@ class AdaptiveTemperatureStrategy(BaseStrategy):
     def on_logits(
         self, logits: torch.FloatTensor, continuation_tokens: List[int]
     ) -> torch.FloatTensor:
+        logits = self.adaptive_temperature_softmax(logits)
         return logits
 
     def on_probs(
         self,
         probs: torch.FloatTensor,
-        continuation_tokens: List[int],
-        filtered_logits: torch.FloatTensor,
+        continuation_tokens: List[int]
     ) -> torch.FloatTensor:
-        probs = self.adaptive_temperature_softmax(probs, filtered_logits)
         return probs
 
     def on_next_token(
@@ -40,11 +39,11 @@ class AdaptiveTemperatureStrategy(BaseStrategy):
     def backtrack(self, continuation_tokens: List[int]) -> List[int]:
         return continuation_tokens
 
-    def adaptive_temperature_softmax(self, probs, logits):
+    def adaptive_temperature_softmax(self, logits):
         """
         Implement adaptive temperature softmax based on entropy
         """
-        x = self.compute_entropy(probs)
+        x = self.compute_entropy(torch.nn.functional.softmax(logits, dim=-1))
         beta = (
             self.poly_coeffs[0] * x**4
             + self.poly_coeffs[1] * x**3
@@ -56,9 +55,7 @@ class AdaptiveTemperatureStrategy(BaseStrategy):
             beta = 1.0
         else:
             beta = max(beta, 1.0)
-        adaptive_probs = torch.nn.functional.softmax(logits * beta, dim=-1)
-        # temperature = 1/beta
-        return adaptive_probs
+        return logits * beta
 
     def compute_entropy(self, probs):
         """

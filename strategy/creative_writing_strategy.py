@@ -54,8 +54,7 @@ class CreativeWritingStrategy(BaseStrategy):
     def on_probs(
         self,
         probs: torch.FloatTensor,
-        continuation_tokens: List[int],
-        filtered_logits: torch.FloatTensor,
+        continuation_tokens: List[int]
     ) -> torch.FloatTensor:
         self._is_flat = self._is_distribution_flat(probs)
         probs[:, self.eos_token] = probs[:, self.eos_token] * self.eos_penalty

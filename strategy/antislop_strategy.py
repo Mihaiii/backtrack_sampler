@@ -47,8 +47,7 @@ class AntiSlopStrategy(BaseStrategy):
     def on_probs(
         self,
         probs: torch.FloatTensor,
-        continuation_tokens: List[int],
-        filtered_logits: torch.FloatTensor,
+        continuation_tokens: List[int]
     ) -> torch.FloatTensor:
         return probs
 

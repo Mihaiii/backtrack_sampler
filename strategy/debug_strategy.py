@@ -23,8 +23,7 @@ class DebugStrategy(BaseStrategy):
     def on_probs(
         self,
         probs: torch.FloatTensor,
-        continuation_tokens: List[int],
-        filtered_logits: torch.FloatTensor,
+        continuation_tokens: List[int]
     ) -> torch.FloatTensor:
         top_2_probs, top_2_indices = torch.topk(probs, 2)
         chars = self.provider.decode(top_2_indices.flatten().tolist())

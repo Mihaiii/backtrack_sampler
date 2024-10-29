@@ -59,7 +59,7 @@ class BacktrackSampler:
 
             probs = torch.softmax(filtered_logits, dim=-1)
 
-            probs = self.strategy.on_probs(probs, continuation_tokens, filtered_logits)
+            probs = self.strategy.on_probs(probs, continuation_tokens)
 
             next_token = torch.multinomial(probs, num_samples=1).item()
 
