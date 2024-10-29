@@ -108,7 +108,7 @@ For more usage examples and outputs, see [demo.ipynb](https://colab.research.goo
 This section is about the files that can be found under [`/strategy`](https://github.com/Mihaiii/backtrack_sampler/tree/main/strategy).
 Each file under [`/strategy`](https://github.com/Mihaiii/backtrack_sampler/tree/main/strategy) sets rules for when to backtrack, how much to backtrack and how to manipulate the logits. Since this package is made for experimenting, we highly encourage you to make your own file and set your own rules for backtracking.
 
-At the moment, we have 4 strategies available:
+At the moment, we have 5 strategies available:
 
 ### * Anti-slop strategy
 [The Anti Slop Strategy](https://github.com/Mihaiii/backtrack_sampler/blob/main/strategy/antislop_strategy.py) is used to ban certain phrases. Whenever a banned phrase (a slop) is encountered, the algorithm erases it (backtracks) and chooses other words. The algorithm used [antislop-sampler](https://github.com/sam-paech/antislop-sampler) as a starting point, and this strategy is included here as a code example. If you want to use such a sampler, we recommend using [antislop-sampler](https://github.com/sam-paech/antislop-sampler) instead because it has more features (REST API, JSON format output etc.)
@@ -129,6 +129,11 @@ Here is a demo of the Creative Writing Strategy: https://huggingface.co/spaces/M
 This strategy relies on [curses](https://docs.python.org/3/howto/curses.html) for drawing, a library that's pre-installed on Linux and MacOS. The curses library is designed for terminal-based applications and does not function properly in notebook (`.ipynb` files) environments.
 
 ![](https://github.com/Mihaiii/backtrack_sampler/blob/main/hgs.gif)
+
+### * Adaptive temperature strategy
+[The Adaptive Temperature Strategy](https://github.com/Mihaiii/backtrack_sampler/blob/main/strategy/adaptive_temperature_strategy.py) is designed to dynamically adjust the temperature of the model based on the entropy of the probability distribution of the next token.
+The code is copy/pasted from [this notebook](https://colab.research.google.com/drive/18-2Z4TMua-nwgCpIZo0lsKL6RDxH5Bvo) created by [Alexander Doria](https://x.com/Dorialexander).
+The official repo is [Quest-Best-Tokens](https://github.com/Pleias/Quest-Best-Tokens).
 
 ## Thanks / credit
 - [Sam Paech](https://x.com/sam_paech) for making [antislop-sampler](https://github.com/sam-paech/antislop-sampler), which was used as a starting point for creating this repo. Some parts of the code are still from the original repo.
