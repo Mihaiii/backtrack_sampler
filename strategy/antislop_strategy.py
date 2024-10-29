@@ -41,7 +41,7 @@ class AntiSlopStrategy(BaseStrategy):
                 logits[:, token] = float('-inf')
         return logits
 
-    def on_probs(self, probs: torch.FloatTensor, continuation_tokens: List[int]) -> torch.FloatTensor:
+    def on_probs(self, probs: torch.FloatTensor, continuation_tokens: List[int], filtered_logits: torch.FloatTensor) -> torch.FloatTensor:
         return probs
 
     def on_next_token(self, continuation_tokens: List[int], probs: torch.FloatTensor) -> None:

@@ -20,7 +20,7 @@ class BaseStrategy(ABC):
         pass
 
     @abstractmethod
-    def on_probs(self, probs: torch.FloatTensor, continuation_tokens: List[int]) -> torch.FloatTensor:
+    def on_probs(self, probs: torch.FloatTensor, continuation_tokens: List[int], filtered_logits: torch.FloatTensor) -> torch.FloatTensor:
         pass
 
     @abstractmethod

@@ -17,7 +17,7 @@ class DebugStrategy(BaseStrategy):
     def on_logits(self, logits: torch.FloatTensor, continuation_tokens: List[int]) -> torch.FloatTensor:
         return logits
 
-    def on_probs(self, probs: torch.FloatTensor, continuation_tokens: List[int]) -> torch.FloatTensor:
+    def on_probs(self, probs: torch.FloatTensor, continuation_tokens: List[int], filtered_logits: torch.FloatTensor) -> torch.FloatTensor:
         top_2_probs, top_2_indices = torch.topk(probs, 2)
         chars = self.provider.decode(top_2_indices.flatten().tolist())
         print(f"\nTop 2 chars: {chars}, top 2 probs: {top_2_probs.flatten().tolist()}. Selected:")
