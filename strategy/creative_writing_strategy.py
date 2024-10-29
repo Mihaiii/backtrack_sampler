@@ -6,11 +6,11 @@ from typing import List
 
 class CreativeWritingStrategy(BaseStrategy):
     def __init__(
-        self, 
-        provider: BaseProvider, 
-        top_p_flat: float = 0.65, 
-        top_k_threshold_flat: int = 9, 
-        eos_penalty: float = 0.8
+        self,
+        provider: BaseProvider,
+        top_p_flat: float = 0.65,
+        top_k_threshold_flat: int = 9,
+        eos_penalty: float = 0.8,
     ):
         """
         top_p_flat: How many top tokens' probabilities sum up to this number?
@@ -19,7 +19,7 @@ class CreativeWritingStrategy(BaseStrategy):
             the algo will rollback.
         eos_penalty: One commmon issue with this strategy is that it selects the eos too early when we ban
             the most probable token. Therefore, we can apply a penalty to the eos token.
-            The value is between 0 and 1 where 1 means no penalty and 0 means eos is never selected 
+            The value is between 0 and 1 where 1 means no penalty and 0 means eos is never selected
             (in which case the generation will stop via the max_length or max_new_tokens settings).
         """
         self.eos_token = provider.get_eos_token_id()
@@ -32,7 +32,7 @@ class CreativeWritingStrategy(BaseStrategy):
         self._is_flat = False
         self._backtrack_data = None
         self._keep_index = 0
-        
+
     def get_keep_index(self) -> int:
         return self._keep_index
 
@@ -46,13 +46,16 @@ class CreativeWritingStrategy(BaseStrategy):
             self._backtrack_data = None
         else:
             max_index = torch.argmax(logits).item()
-            if(max_index != self.eos_token):
+            if max_index != self.eos_token:
                 logits[:, max_index] = float("-inf")
-                
+
         return logits
 
     def on_probs(
-        self, probs: torch.FloatTensor, continuation_tokens: List[int], filtered_logits: torch.FloatTensor
+        self,
+        probs: torch.FloatTensor,
+        continuation_tokens: List[int],
+        filtered_logits: torch.FloatTensor,
     ) -> torch.FloatTensor:
         self._is_flat = self._is_distribution_flat(probs)
         probs[:, self.eos_token] = probs[:, self.eos_token] * self.eos_penalty

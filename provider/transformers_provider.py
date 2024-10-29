@@ -9,7 +9,7 @@ class TransformersProvider(BaseProvider):
         self,
         model: PreTrainedModel,
         tokenizer: PreTrainedTokenizer,
-        device: torch.device = torch.device('cuda')
+        device: torch.device = torch.device("cuda"),
     ):
         self.model = model.to(device)
         self.tokenizer = tokenizer
@@ -50,5 +50,5 @@ class TransformersProvider(BaseProvider):
     def reset(self) -> None:
         del self.past_key_values
         self.past_key_values = DynamicCache()
-        if self.device.type == 'cuda':
+        if self.device.type == "cuda":
             torch.cuda.empty_cache()

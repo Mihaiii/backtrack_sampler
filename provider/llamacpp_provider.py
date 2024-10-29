@@ -9,7 +9,7 @@ class LlamacppProvider(BaseProvider):
         self,
         llm: Llama,
         cache: LlamaRAMCache,
-        device: torch.device = torch.device('cpu')
+        device: torch.device = torch.device("cpu"),
     ):
         self.llm = llm
         self.llm.logits_all = True
@@ -21,7 +21,8 @@ class LlamacppProvider(BaseProvider):
         return self.llm.tokenize(
             text.encode("utf-8", errors="ignore"),
             add_bos=add_special_tokens,
-            special=add_special_tokens)
+            special=add_special_tokens,
+        )
 
     def decode(self, tokens: List[int]) -> str:
         return self.llm.detokenize(tokens).decode("utf-8", errors="ignore")
@@ -36,7 +37,8 @@ class LlamacppProvider(BaseProvider):
             top_p=1,
             top_k=9999999999999999,
             min_p=0,
-            *args, **kwargs
+            *args,
+            **kwargs
         )
         logits = self.llm._scores[-1, :]
         return torch.from_numpy(logits).unsqueeze(0).to(self.device)
@@ -45,7 +47,7 @@ class LlamacppProvider(BaseProvider):
         return self.llm.token_eos()
 
     def remove_latest_cache(self, nr: int) -> None:
-        while(nr > 0):
+        while nr > 0:
             if len(self.llm.cache.cache_state) > 0:
                 self.llm.cache.cache_state.popitem(last=True)
             nr -= 1
@@ -54,6 +56,6 @@ class LlamacppProvider(BaseProvider):
         new_cache = LlamaRAMCache(capacity_bytes=self.llm.cache.capacity_bytes)
         del self.llm.cache
         self.llm.set_cache(new_cache)
-        #self.llm._ctx.kv_cache_clear()
-        if self.device.type == 'cuda':
+        # self.llm._ctx.kv_cache_clear()
+        if self.device.type == "cuda":
             torch.cuda.empty_cache()

@@ -5,11 +5,7 @@ from .strategy.base_strategy import BaseStrategy
 
 
 class BacktrackSampler:
-    def __init__(
-        self,
-        provider: BaseProvider,
-        strategy: BaseStrategy
-    ):
+    def __init__(self, provider: BaseProvider, strategy: BaseStrategy):
         self.provider = provider
         self.strategy = strategy
 
@@ -27,7 +23,7 @@ class BacktrackSampler:
         **kwargs
     ) -> Generator[List[int], None, None]:
 
-        #See in README.md examples of what the prompt should look like.
+        # See in README.md examples of what the prompt should look like.
         input_tokens = self.provider.encode(prompt, add_special_tokens=False)
         continuation_tokens = []
         release_index = 0
@@ -39,23 +35,27 @@ class BacktrackSampler:
                     yield token
                 break
 
-            if max_new_tokens is not None and len(continuation_tokens) >= max_new_tokens:
+            if (
+                max_new_tokens is not None
+                and len(continuation_tokens) >= max_new_tokens
+            ):
                 for token in continuation_tokens[release_index:]:
                     yield token
                 break
 
-            outputs = self.provider.generate(
-                generated_sequence, *args, **kwargs)
+            outputs = self.provider.generate(generated_sequence, *args, **kwargs)
 
             next_token_logits = outputs / max(temperature, 1e-4)
 
             # Opportunity to apply strategy-specific penalty
             next_token_logits = self.strategy.on_logits(
-                next_token_logits, continuation_tokens)
+                next_token_logits, continuation_tokens
+            )
 
             # Apply min_p, top-k and top-p filtering
             filtered_logits = self._filter_logits(
-                next_token_logits, top_k, top_p, min_p)
+                next_token_logits, top_k, top_p, min_p
+            )
 
             probs = torch.softmax(filtered_logits, dim=-1)
 
@@ -70,7 +70,7 @@ class BacktrackSampler:
             # Apply backtracking if necessary
             continuation_tokens = self.strategy.backtrack(continuation_tokens)
 
-            if (intial_len > len(continuation_tokens)):
+            if intial_len > len(continuation_tokens):
                 self.provider.remove_latest_cache(intial_len - len(continuation_tokens))
 
             while release_index < self.strategy.get_keep_index():
@@ -81,35 +81,37 @@ class BacktrackSampler:
                 for token in continuation_tokens[release_index:]:
                     yield token
                 break
-        
+
         self.strategy.reset()
         self.provider.reset()
 
-    def _filter_logits(self, logits: torch.FloatTensor, top_k: int, top_p: float, min_p: float) -> torch.FloatTensor:
+    def _filter_logits(
+        self, logits: torch.FloatTensor, top_k: int, top_p: float, min_p: float
+    ) -> torch.FloatTensor:
         if min_p is not None:
             probs = torch.softmax(logits, dim=-1)
             top_prob, _ = torch.max(probs, dim=-1)
             scaled_min_p = min_p * top_prob
-            logits = torch.where(probs < scaled_min_p, float('-inf'), logits)
+            logits = torch.where(probs < scaled_min_p, float("-inf"), logits)
 
         if top_k is not None and top_k > 0:
             top_k = min(top_k, logits.size(-1))
             top_k_logits, _ = torch.topk(logits, top_k)
             min_top_k = top_k_logits[:, -1].unsqueeze(-1)
-            logits = torch.where(logits < min_top_k, float('-inf'), logits)
+            logits = torch.where(logits < min_top_k, float("-inf"), logits)
 
         if top_p is not None and top_p < 1.0:
             sorted_logits, sorted_indices = torch.sort(logits, descending=True)
             cumulative_probs = torch.cumsum(
-                torch.softmax(sorted_logits, dim=-1), dim=-1)
+                torch.softmax(sorted_logits, dim=-1), dim=-1
+            )
 
             sorted_indices_to_remove = cumulative_probs > top_p
-            sorted_indices_to_remove[:,
-                                     1:] = sorted_indices_to_remove[:, :-1].clone()
+            sorted_indices_to_remove[:, 1:] = sorted_indices_to_remove[:, :-1].clone()
             sorted_indices_to_remove[:, 0] = False
             indices_to_remove = sorted_indices_to_remove.scatter(
                 dim=1, index=sorted_indices, src=sorted_indices_to_remove
             )
-            logits = logits.masked_fill(indices_to_remove, float('-inf'))
+            logits = logits.masked_fill(indices_to_remove, float("-inf"))
 
         return logits

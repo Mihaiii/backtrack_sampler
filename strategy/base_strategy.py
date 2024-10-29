@@ -16,21 +16,30 @@ class BaseStrategy(ABC):
         pass
 
     @abstractmethod
-    def on_logits(self, logits: torch.FloatTensor, continuation_tokens: List[int]) -> torch.FloatTensor:
+    def on_logits(
+        self, logits: torch.FloatTensor, continuation_tokens: List[int]
+    ) -> torch.FloatTensor:
         pass
 
     @abstractmethod
-    def on_probs(self, probs: torch.FloatTensor, continuation_tokens: List[int], filtered_logits: torch.FloatTensor) -> torch.FloatTensor:
+    def on_probs(
+        self,
+        probs: torch.FloatTensor,
+        continuation_tokens: List[int],
+        filtered_logits: torch.FloatTensor,
+    ) -> torch.FloatTensor:
         pass
 
     @abstractmethod
-    def on_next_token(self, continuation_tokens: List[int], probs: torch.FloatTensor) -> None:
+    def on_next_token(
+        self, continuation_tokens: List[int], probs: torch.FloatTensor
+    ) -> None:
         pass
 
     @abstractmethod
     def backtrack(self, continuation_tokens: List[int]) -> List[int]:
         pass
-    
+
     @abstractmethod
     def reset(self) -> None:
         pass
