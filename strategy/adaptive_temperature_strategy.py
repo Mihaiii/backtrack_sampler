@@ -1,9 +1,9 @@
 import torch
 from typing import List
 from .base_strategy import BaseStrategy
-from ..provider.base_provider import BaseProvider
 
-
+# https://colab.research.google.com/drive/18-2Z4TMua-nwgCpIZo0lsKL6RDxH5Bvo?usp=sharing#scrollTo=dGj0lDA8wTlC
+# https://github.com/Pleias/Quest-Best-Tokens
 class AdaptiveTemperatureStrategy(BaseStrategy):
     def __init__(
         self,
