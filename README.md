@@ -135,5 +135,15 @@ This strategy relies on [curses](https://docs.python.org/3/howto/curses.html) fo
 The code is copy/pasted from [this notebook](https://colab.research.google.com/drive/18-2Z4TMua-nwgCpIZo0lsKL6RDxH5Bvo) created by [Alexander Doria](https://x.com/Dorialexander).
 The official repo is [Quest-Best-Tokens](https://github.com/Pleias/Quest-Best-Tokens).
 
+### * Replace strategy
+[The Replace Strategy](https://github.com/Mihaiii/backtrack_sampler/blob/main/strategy/replace_strategy.py) is a "find and replace" functionality. This strategy is a general implementation of [vgel's](https://github.com/vgel) overthinking script for R1 found [here](https://gist.github.com/vgel/8a2497dc45b1ded33287fa7bb6cc1adc).
+
+Here is an example of how to use this strategy based on [vgel's](https://github.com/vgel) use case:
+```python
+strategy = ReplaceStrategy(
+    provider, find="</think>", replace="\nWait, but", min_replacements=3
+)
+```
+
 ## Thanks / credit
 - [Sam Paech](https://x.com/sam_paech) for making [antislop-sampler](https://github.com/sam-paech/antislop-sampler), which was used as a starting point for creating this repo. Some parts of the code are still from the original repo.

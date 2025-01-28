@@ -6,13 +6,13 @@ from ..provider.base_provider import BaseProvider
 
 class AntiSlopStrategy(BaseStrategy):
     def __init__(
-        self, provider: BaseProvider, slops: List[str], keep_index_buffer: int = 5
+        self, provider: BaseProvider, slops: List[str], keep_index_buffer: int = 5, with_variants = True
     ):
         self.provider = provider
         self.slops = slops
         self.keep_index_buffer = keep_index_buffer
-
-        self.tokenized_slops = self._tokenize_slop_variants()
+        self.with_variants = with_variants
+        self.tokenized_slops = self._tokenize_slops()
         self.max_tokenized_slop = max(
             (len(seq) for seq in self.tokenized_slops), default=0
         )
@@ -71,7 +71,7 @@ class AntiSlopStrategy(BaseStrategy):
 
         return continuation_tokens
 
-    def _tokenize_slop_variants(self) -> list[list[int]]:
+    def _tokenize_slops(self) -> list[list[int]]:
         token_sequences = []
         for slop in self.slops:
             variants = set(
@@ -84,7 +84,7 @@ class AntiSlopStrategy(BaseStrategy):
                     f" {slop.capitalize()}",
                     f" {slop.upper()}",
                 ]
-            )
+            ) if self.with_variants else [slop]
             for variant in variants:
                 token_ids = self.provider.encode(variant, add_special_tokens=False)
                 if token_ids:
