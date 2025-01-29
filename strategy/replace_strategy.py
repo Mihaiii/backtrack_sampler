@@ -26,9 +26,6 @@ class ReplaceStrategy(AntiSlopStrategy):
         self.replaced = 0
         self.replace_index = None
 
-    def get_keep_index(self) -> int:
-        return super().get_keep_index()
-
     def on_logits(
         self, logits: torch.Tensor, continuation_tokens: List[int]
     ) -> torch.Tensor:
@@ -43,16 +40,6 @@ class ReplaceStrategy(AntiSlopStrategy):
             else:
                 self.replace_index = None
         return logits
-
-    def on_probs(
-        self, probs: torch.FloatTensor, continuation_tokens: List[int]
-    ) -> torch.FloatTensor:
-        return super().on_probs(probs, continuation_tokens)
-
-    def on_next_token(
-        self, continuation_tokens: List[int], probs: torch.FloatTensor
-    ) -> None:
-        super().on_next_token(continuation_tokens, probs)
 
     def backtrack(self, continuation_tokens: List[int]) -> List[int]:
         self.slop_start_pos = None

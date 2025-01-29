@@ -145,24 +145,32 @@ strategy = ReplaceStrategy(
 )
 ```
 ### * Chain strategy
-[The Chain Strategy](https://github.com/Mihaiii/backtrack_sampler/blob/main/strategy/chain_strategy.py) allows applying multiple strategies on generation. If mulitple strategies need to backtrack at the same exact token, then only the first one will be taken into consideration for backtracking.
+[The Chain Strategy](https://github.com/Mihaiii/backtrack_sampler/blob/main/strategy/chain_strategy.py) allows applying multiple strategies on generation. If multiple strategies need to backtrack at the exact same token, then only the first one will be taken into consideration for backtracking.
 ```python
+provider = LlamacppProvider(llm, cache, device)
 strategy1 = ReplaceStrategy(
     provider,
     find=[" So", "So", "\nSo", "Therefore", " Therefore", "\nTherefore", "</think>"],
-    replace=" But let me think again.",
+    replace=" But let me rephrase the request to see if I missed something.",
     max_replacements=4,
 )
 strategy2 = ReplaceStrategy(
     provider,
-    find=[" But", "But", "\nBut", "Wait", " Wait", "\nWait"],
-    replace=" So",
-    skip_tokens=2048,
+    find=[
+        " But",
+        "But",
+        "\nBut",
+        "Wait",
+        " Wait",
+        "\nWait",
+        " Alternatively",
+        "Alternatively",
+        "\nAlternatively",
+    ],
+    replace="\nOkay, so in conclusion",
+    skip_tokens=1024,
 )
-sampler = BacktrackSampler(
-    provider,
-    ChainStrategy([strategy1, strategy2]),
-)
+sampler = BacktrackSampler(provider, ChainStrategy([strategy1, strategy2]))
 ```
 
 ## Thanks / credit
