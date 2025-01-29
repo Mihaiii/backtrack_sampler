@@ -9,12 +9,12 @@ class ReplaceStrategy(AntiSlopStrategy):
     def __init__(
         self,
         provider: BaseProvider,
-        find: str,
+        find: List[str],
         replace: str,
         max_replacements: int = sys.maxsize,
         max_new_tokens_for_replace: int = sys.maxsize,
     ):
-        super().__init__(provider, [find], with_variants=False)
+        super().__init__(provider, find, with_variants=False)
         self.replace_ids = self.provider.encode(replace, add_special_tokens=False)
         self.max_replacements = max_replacements
         self.max_new_tokens_for_replace = max_new_tokens_for_replace
