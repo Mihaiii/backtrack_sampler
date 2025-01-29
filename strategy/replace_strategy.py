@@ -12,16 +12,12 @@ class ReplaceStrategy(AntiSlopStrategy):
         find: str,
         replace: str,
         max_replacements: int = sys.maxsize,
-        min_replacements: int = 0,
         max_new_tokens_for_replace: int = sys.maxsize,
-        min_new_tokens_for_replace: int = 0,
     ):
         super().__init__(provider, [find], with_variants=False)
         self.replace_ids = self.provider.encode(replace, add_special_tokens=False)
         self.max_replacements = max_replacements
-        self.min_replacements = min_replacements
         self.max_new_tokens_for_replace = max_new_tokens_for_replace
-        self.min_new_tokens_for_replace = min_new_tokens_for_replace
         self.replaced = 0
         self.replace_index = None
 
@@ -38,9 +34,10 @@ class ReplaceStrategy(AntiSlopStrategy):
     ) -> torch.Tensor:
         if self.slop_start_pos is not None:
             self.replace_index = 0
+            self.replaced += 1
 
         if self.replace_index is not None:
-            logits[:, self.replace_ids[self.replace_index]] = float("inf")
+            logits[:, self.replace_ids[self.replace_index]] = 1e9
             if self.replace_index + 1 < len(self.replace_ids):
                 self.replace_index = self.replace_index + 1
             else:
@@ -60,10 +57,8 @@ class ReplaceStrategy(AntiSlopStrategy):
     def backtrack(self, continuation_tokens: List[int]) -> List[int]:
         self.slop_start_pos = None
         if (
-            self.max_new_tokens_for_replace >= len(continuation_tokens)
-            and self.min_new_tokens_for_replace <= len(continuation_tokens)
-            and self.max_replacements >= self.replaced
-            and self.min_replacements <= self.replaced
+            self.max_new_tokens_for_replace > len(continuation_tokens)
+            and self.max_replacements > self.replaced
         ):
             return super().backtrack(continuation_tokens)
         return continuation_tokens

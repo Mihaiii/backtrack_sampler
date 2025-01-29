@@ -6,7 +6,11 @@ from ..provider.base_provider import BaseProvider
 
 class AntiSlopStrategy(BaseStrategy):
     def __init__(
-        self, provider: BaseProvider, slops: List[str], keep_index_buffer: int = 5, with_variants = True
+        self,
+        provider: BaseProvider,
+        slops: List[str],
+        keep_index_buffer: int = 5,
+        with_variants=True,
     ):
         self.provider = provider
         self.slops = slops
@@ -45,9 +49,7 @@ class AntiSlopStrategy(BaseStrategy):
         return logits
 
     def on_probs(
-        self,
-        probs: torch.FloatTensor,
-        continuation_tokens: List[int]
+        self, probs: torch.FloatTensor, continuation_tokens: List[int]
     ) -> torch.FloatTensor:
         return probs
 
@@ -74,17 +76,21 @@ class AntiSlopStrategy(BaseStrategy):
     def _tokenize_slops(self) -> list[list[int]]:
         token_sequences = []
         for slop in self.slops:
-            variants = set(
-                [
-                    slop,
-                    slop.lower(),
-                    slop.capitalize(),
-                    slop.upper(),
-                    f" {slop.lower()}",
-                    f" {slop.capitalize()}",
-                    f" {slop.upper()}",
-                ]
-            ) if self.with_variants else [slop]
+            variants = (
+                set(
+                    [
+                        slop,
+                        slop.lower(),
+                        slop.capitalize(),
+                        slop.upper(),
+                        f" {slop.lower()}",
+                        f" {slop.capitalize()}",
+                        f" {slop.upper()}",
+                    ]
+                )
+                if self.with_variants
+                else [slop]
+            )
             for variant in variants:
                 token_ids = self.provider.encode(variant, add_special_tokens=False)
                 if token_ids:
