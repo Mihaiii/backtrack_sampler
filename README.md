@@ -145,7 +145,7 @@ strategy = ReplaceStrategy(
 )
 ```
 ### * Chain strategy
-[The Chain Strategy](https://github.com/Mihaiii/backtrack_sampler/blob/main/strategy/chain_strategy.py) allows applying multiple strategies on generation.
+[The Chain Strategy](https://github.com/Mihaiii/backtrack_sampler/blob/main/strategy/chain_strategy.py) allows applying multiple strategies on generation. If mulitple strategies need to backtrack at the same exact token, then only the first one will be taken into consideration for backtracking.
 ```python
 strategy1 = ReplaceStrategy(
     provider,
