@@ -11,6 +11,7 @@ class AntiSlopStrategy(BaseStrategy):
         slops: List[str],
         keep_index_buffer: int = 5,
         with_variants=True,
+        skip_tokens=0,
     ):
         self.provider = provider
         self.slops = slops
@@ -20,7 +21,7 @@ class AntiSlopStrategy(BaseStrategy):
         self.max_tokenized_slop = max(
             (len(seq) for seq in self.tokenized_slops), default=0
         )
-
+        self.skip_tokens = skip_tokens
         self.reset()
 
     def reset(self) -> None:
@@ -100,7 +101,7 @@ class AntiSlopStrategy(BaseStrategy):
     def _detect_slops(self, tokens: List[int]) -> Optional[int]:
         min_index = None
         for slop in self.tokenized_slops:
-            for i in range(len(tokens) - len(slop) + 1):
+            for i in range(self.skip_tokens, len(tokens) - len(slop) + 1):
                 if tokens[i : i + len(slop)] == slop:
                     if min_index is None or i < min_index:
                         min_index = i

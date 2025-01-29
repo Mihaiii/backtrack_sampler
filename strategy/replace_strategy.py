@@ -13,17 +13,13 @@ class ReplaceStrategy(AntiSlopStrategy):
         replace: str,
         max_replacements: int = sys.maxsize,
         max_new_tokens_for_replace: int = sys.maxsize,
-        skip_replacements: int = 0,
         skip_tokens: int = 0,
     ):
-        super().__init__(provider, find, with_variants=False)
+        super().__init__(provider, find, with_variants=False, skip_tokens=skip_tokens)
         self.replace_ids = self.provider.encode(replace, add_special_tokens=False)
         self.max_replacements = max_replacements
         self.max_new_tokens_for_replace = max_new_tokens_for_replace
-        self.replaced = 0
-        self.replace_index = None
-        self.skip_replacements = skip_replacements
-        self.skip_tokens = skip_tokens
+        self.reset()
 
     def reset(self) -> None:
         super().reset()
@@ -64,7 +60,6 @@ class ReplaceStrategy(AntiSlopStrategy):
             self.max_new_tokens_for_replace > len(continuation_tokens)
             and self.max_replacements > self.replaced
             and self.skip_tokens <= len(continuation_tokens)
-            and self.skip_replacements <= self.replaced
         ):
             return super().backtrack(continuation_tokens)
         return continuation_tokens

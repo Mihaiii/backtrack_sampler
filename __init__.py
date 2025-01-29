@@ -5,6 +5,7 @@ from .strategy.debug_strategy import DebugStrategy
 from .strategy.human_guidance_strategy import HumanGuidanceStrategy
 from .strategy.adaptive_temperature_strategy import AdaptiveTemperatureStrategy
 from .strategy.replace_strategy import ReplaceStrategy
+from .strategy.chain_strategy import ChainStrategy
 
 __all__ = [
     "BacktrackSampler",
@@ -14,4 +15,5 @@ __all__ = [
     "HumanGuidanceStrategy",
     "AdaptiveTemperatureStrategy",
     "ReplaceStrategy",
+    "ChainStrategy",
 ]

@@ -144,6 +144,26 @@ strategy = ReplaceStrategy(
     provider, find="</think>", replace="\nWait, but", min_replacements=3
 )
 ```
+### * Chain strategy
+[The Chain Strategy](https://github.com/Mihaiii/backtrack_sampler/blob/main/strategy/chain_strategy.py) allows applying multiple strategies on generation.
+```python
+strategy1 = ReplaceStrategy(
+    provider,
+    find=[" So", "So", "\nSo", "Therefore", " Therefore", "\nTherefore", "</think>"],
+    replace=" But let me think again.",
+    max_replacements=4,
+)
+strategy2 = ReplaceStrategy(
+    provider,
+    find=[" But", "But", "\nBut", "Wait", " Wait", "\nWait"],
+    replace=" So",
+    skip_tokens=2048,
+)
+sampler = BacktrackSampler(
+    provider,
+    ChainStrategy([strategy1, strategy2]),
+)
+```
 
 ## Thanks / credit
 - [Sam Paech](https://x.com/sam_paech) for making [antislop-sampler](https://github.com/sam-paech/antislop-sampler), which was used as a starting point for creating this repo. Some parts of the code are still from the original repo.
