@@ -116,7 +116,7 @@ At the moment, we have 5 strategies available:
 ### * Creative writing strategy
 [The Creative Writing Strategy](https://github.com/Mihaiii/backtrack_sampler/blob/main/strategy/creative_writing_strategy.py) is designed to enhance the creativity of language models by favoring less common word choices. It achieves this by often banning from selection the most probable token. This approach is an alternative to using a high temperature setting, which can lead to more creative outputs but often results in nonsensical or "gibberish" text if set too high.
 
-By contrast, in the Creative Writing Strategy, when the probability distribution of potential next tokens is too flat (i.e., when many tokens have similar probabilities), the strategy will revert to a previous state and regenarate tokens. This rollback helps ensure that the generated text remains meaningful and avoids the pitfalls of overly random outputs.
+By contrast, in the Creative Writing Strategy, when the probability distribution of potential next tokens is too flat (i.e., when many tokens have similar probabilities), the strategy will revert to a previous state and regenerate tokens. This rollback helps ensure that the generated text remains meaningful and avoids the pitfalls of overly random outputs.
 
 Here is a demo of the Creative Writing Strategy: https://huggingface.co/spaces/Mihaiii/backtrack_sampler_demo
 
