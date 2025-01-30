@@ -35,9 +35,8 @@ class ReplaceStrategy(AntiSlopStrategy):
 
         if self.replace_index is not None:
             logits[:, self.replace_ids[self.replace_index]] = 1e9
-            if self.replace_index + 1 < len(self.replace_ids):
-                self.replace_index = self.replace_index + 1
-            else:
+            self.replace_index = self.replace_index + 1
+            if self.replace_index >= len(self.replace_ids):
                 self.replace_index = None
         return logits
 
