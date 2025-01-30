@@ -156,11 +156,7 @@ strategy1 = ReplaceStrategy(
 )
 strategy2 = ReplaceStrategy(
     provider,
-    find=[
-        " But", "But", "\nBut",
-        " Wait", "Wait", "\nWait",
-        " Alternatively", "Alternatively", "\nAlternatively",
-    ],
+    find=[" But", "But", "\nBut", " Wait", "Wait", "\nWait"],
     replace="\nOkay, so in conclusion",
     skip_tokens=1024,
 )
