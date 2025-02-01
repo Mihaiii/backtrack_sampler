@@ -36,12 +36,11 @@ class ChainStrategy(BaseStrategy):
             stg.on_next_token(continuation_tokens, probs)
 
     def backtrack(self, continuation_tokens: List[int]) -> List[int]:
-        for stg in self.strategies:
-            initial_len = len(continuation_tokens)
-            stg.backtrack(continuation_tokens)
-            if len(continuation_tokens) != initial_len:
-                break
-        return continuation_tokens
+        return reduce(
+            lambda res, strategy: strategy.backtrack(res),
+            self.strategies,
+            continuation_tokens,
+        )
 
     def reset(self) -> None:
         for stg in self.strategies:
