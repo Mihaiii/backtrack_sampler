@@ -141,7 +141,7 @@ The official repo is [Quest-Best-Tokens](https://github.com/Pleias/Quest-Best-To
 Here is an example of how to use this strategy based on [vgel's](https://github.com/vgel) use case:
 ```python
 strategy = ReplaceStrategy(
-    provider, find="</think>", replace="\nWait, but", max_replacements=3
+    provider, find=["</think>"], replace="\nWait, but", max_replacements=3
 )
 ```
 ### * Chain strategy
