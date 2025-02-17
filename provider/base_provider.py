@@ -17,7 +17,7 @@ class BaseProvider(ABC):
         pass
 
     @abstractmethod
-    def get_eos_token_id(self) -> int:
+    def get_eos_token_id(self) -> List[int]:
         pass
 
     @abstractmethod

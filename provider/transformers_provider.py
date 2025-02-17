@@ -41,8 +41,9 @@ class TransformersProvider(BaseProvider):
         self.past_key_values = outputs.past_key_values
         return outputs.scores[0]
 
-    def get_eos_token_id(self) -> int:
-        return self.tokenizer.eos_token_id
+    def get_eos_token_id(self) -> List[int]:
+        eos = self.tokenizer.eos_token_id
+        return eos if isinstance(eos, list) else [eos]
 
     def remove_latest_cache(self, nr: int) -> None:
         self.past_key_values.crop(-1 * nr)

@@ -77,7 +77,7 @@ class BacktrackSampler:
                 yield continuation_tokens[release_index]
                 release_index += 1
 
-            if next_token == self.provider.get_eos_token_id():
+            if next_token in self.provider.get_eos_token_id():
                 for token in continuation_tokens[release_index:]:
                     yield token
                 break

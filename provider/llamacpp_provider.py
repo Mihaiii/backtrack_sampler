@@ -43,8 +43,9 @@ class LlamacppProvider(BaseProvider):
         logits = self.llm._scores[-1, :]
         return torch.from_numpy(logits).unsqueeze(0).to(self.device)
 
-    def get_eos_token_id(self) -> int:
-        return self.llm.token_eos()
+    def get_eos_token_id(self) -> List[int]:
+        eos = self.llm.token_eos()
+        return eos if isinstance(eos, list) else [eos]
 
     def remove_latest_cache(self, nr: int) -> None:
         while nr > 0:

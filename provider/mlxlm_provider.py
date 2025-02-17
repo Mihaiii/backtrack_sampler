@@ -8,6 +8,7 @@ from functools import partial
 from mlx_lm.models.cache import make_prompt_cache, trim_prompt_cache
 from mlx_lm.sample_utils import make_sampler
 from mlx_lm.utils import stream_generate
+import numpy as np
 
 class MlxlmProvider(BaseProvider):
     def __init__(
@@ -26,7 +27,7 @@ class MlxlmProvider(BaseProvider):
         )
 
     def encode(self, text: str, add_special_tokens: bool = True) -> List[int]:
-        # Why does tokenizer.convert_tokens_to_ids(text) exists?
+        # Why does tokenizer.convert_tokens_to_ids(text) exist?
         return self.tokenizer.encode(text, add_special_tokens=add_special_tokens)
 
     def decode(self, tokens: List[int]) -> str:
@@ -40,10 +41,12 @@ class MlxlmProvider(BaseProvider):
                     *args,
                     **kwargs
                 ))
-        return torch.log(outputs.logprobs)
-
-    def get_eos_token_id(self) -> int:
-        return self.tokenizer._eos_token_ids[0]
+        logprobs_np = np.asarray(outputs.logprobs)
+        logprobs_torch = torch.from_numpy(logprobs_np).unsqueeze(0)
+        return logprobs_torch
+    
+    def get_eos_token_id(self) -> List[int]:
+        return list(self.tokenizer._eos_token_ids)
 
     def remove_latest_cache(self, nr: int) -> None:
         trim_prompt_cache(self.prompt_cache, nr)
