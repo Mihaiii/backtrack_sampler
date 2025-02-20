@@ -13,7 +13,7 @@ If you want to make your own sampling algorithm, create a new file in the `/stra
 ```cmd
 pip install backtrack_sampler
 ```
-The above command will install **0 dependencies**. Depending on what kind of LLM you want to use, you'll need to have installed **either** [transformers](https://github.com/huggingface/transformers) (`pip install transformers`), **or** [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) ([click here for install commands depending on your hardware](https://github.com/abetlen/llama-cpp-python?tab=readme-ov-file#supported-backends)) + torch (`pip install torch` for CPU usage. For GPU, please search for the appropriate commands online.).
+The above command will install **0 dependencies**. Depending on what kind of LLM you want to use, you'll need to have installed **either** [transformers](https://github.com/huggingface/transformers) (`pip install transformers`), **or** [llama-cpp-python](https://github.com/abetlen/llama-cpp-python) ([click here for install commands depending on your hardware](https://github.com/abetlen/llama-cpp-python?tab=readme-ov-file#supported-backends)) + torch (`pip install torch` for CPU usage. For GPU, please search for the appropriate commands online.) **or** [mlx-lm](https://github.com/ml-explore/mlx-examples) + torch (`pip install torch` for CPU usage. For GPU, please search for the appropriate commands online.).
  
 Here are some combos, for easy copy/paste:
 ```cmd
@@ -22,7 +22,9 @@ pip install backtrack_sampler transformers
 ```cmd
 pip install backtrack_sampler llama-cpp-python torch
 ```
-
+```cmd
+pip install backtrack_sampler mlx-lm torch
+```
 
 ## Usage examples
 
@@ -98,6 +100,46 @@ token_stream = sampler.generate(
 
 for token in token_stream:
     print(tokenizer.decode(token, skip_special_tokens=True), end="", flush=True)
+
+print(f"\nDuration: {time.time()-ts} seconds")
+```
+
+### * mlx-lm
+```python
+from backtrack_sampler import BacktrackSampler, ReplaceStrategy, ChainStrategy
+from backtrack_sampler.provider.mlxlm_provider import MlxlmProvider
+from mlx_lm.utils import load
+import time
+
+model, tokenizer = load(
+    "mlx-community/deepseek-r1-distill-qwen-1.5b-4bit",
+    tokenizer_config={"trust_remote_code": True},
+)
+provider = MlxlmProvider(model, tokenizer)
+strategy1 = ReplaceStrategy(
+    provider,
+    find=[" So", "So", "\nSo", "Therefore", " Therefore", "\nTherefore", "</think>"],
+    replace=" But let me rephrase the request to see if I missed something.",
+    max_replacements=4,
+)
+strategy2 = ReplaceStrategy(
+    provider,
+    find=[" But", "But", "\nBut", " Wait", "Wait", "\nWait"],
+    replace="\nOkay, so in conclusion",
+    skip_tokens=1024,
+)
+sampler = BacktrackSampler(provider, ChainStrategy([strategy1, strategy2]))
+
+ts = time.time()
+
+token_stream = sampler.generate(
+    prompt="I currently have 2 apples. I ate one yesterday. How many apples do I have now? Think step by step.",
+    max_new_tokens=1024,
+    temperature=1
+)
+
+for token in token_stream:
+    print(provider.decode([token]), end="", flush=True)
 
 print(f"\nDuration: {time.time()-ts} seconds")
 ```
