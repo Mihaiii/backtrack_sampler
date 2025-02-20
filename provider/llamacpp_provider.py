@@ -41,7 +41,7 @@ class LlamacppProvider(BaseProvider):
             **kwargs
         )
         logits = self.llm._scores[-1, :]
-        return torch.from_numpy(logits).unsqueeze(0).to(self.device)
+        return torch.from_numpy(logits).to(torch.float32).unsqueeze(0).to(self.device)
 
     def get_eos_token_id(self) -> List[int]:
         eos = self.llm.token_eos()

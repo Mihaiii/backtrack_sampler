@@ -42,7 +42,7 @@ class MlxlmProvider(BaseProvider):
                     **kwargs
                 ))
         logprobs_np = np.asarray(outputs.logprobs)
-        logprobs_torch = torch.from_numpy(logprobs_np).unsqueeze(0)
+        logprobs_torch = torch.from_numpy(logprobs_np).to(torch.float32).unsqueeze(0)
         return logprobs_torch
     
     def get_eos_token_id(self) -> List[int]:

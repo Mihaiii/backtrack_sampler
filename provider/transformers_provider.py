@@ -39,7 +39,7 @@ class TransformersProvider(BaseProvider):
         )
 
         self.past_key_values = outputs.past_key_values
-        return outputs.scores[0]
+        return outputs.scores[0].to(torch.float32)
 
     def get_eos_token_id(self) -> List[int]:
         eos = self.tokenizer.eos_token_id
