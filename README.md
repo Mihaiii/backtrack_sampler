@@ -132,8 +132,16 @@ sampler = BacktrackSampler(provider, ChainStrategy([strategy1, strategy2]))
 
 ts = time.time()
 
+prompt="I currently have 2 apples. I ate one yesterday. How many apples do I have now? Think step by step."
+
+if tokenizer.chat_template is not None:
+    messages = [{"role": "user", "content": prompt}]
+    prompt = tokenizer.apply_chat_template(
+        messages, add_generation_prompt=True, tokenize=False
+    )
+
 token_stream = sampler.generate(
-    prompt="I currently have 2 apples. I ate one yesterday. How many apples do I have now? Think step by step.",
+    prompt=prompt,
     max_new_tokens=1024,
     temperature=1
 )
