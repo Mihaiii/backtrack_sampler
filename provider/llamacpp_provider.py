@@ -21,7 +21,10 @@ class LlamacppProvider(BaseProvider):
         return self.llm.tokenize(
             text.encode("utf-8", errors="ignore"),
             add_bos=add_special_tokens,
-            special=add_special_tokens,
+            # `special` controls whether special-token *strings* already present in
+            # `text` (e.g. `<|begin_of_text|>`) are treated as special tokens. This
+            # should be independent from whether we auto-inject BOS/EOS.
+            special=True,
         )
 
     def decode(self, tokens: List[int]) -> str:
