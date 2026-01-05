@@ -14,8 +14,10 @@ class LlamacppProvider(BaseProvider):
     ):
         self.llm = llm
         # Ensure logits_all is enabled - required for getting logits
-        # If the Llama object wasn't created with logits_all=True, we set it here
-        self.llm._logits_all = True
+        # We access the private _logits_all attribute as there's no public API to set this post-initialization
+        # This is necessary for the backtrack sampler to get logits for custom sampling
+        if hasattr(self.llm, '_logits_all'):
+            self.llm._logits_all = True
         self.llm.set_cache(cache)
         self.device = device
         self._evaluated_tokens = 0  # Track how many tokens have been evaluated
@@ -55,10 +57,16 @@ class LlamacppProvider(BaseProvider):
         self._evaluated_tokens = max(0, self._evaluated_tokens - nr)
         
         # Also clear the KV cache for those tokens
-        if nr > 0:
-            # Remove tokens from the llama context
-            self.llm._ctx.kv_cache_seq_rm(-1, self.llm.n_tokens - nr, -1)
-            self.llm.n_tokens -= nr
+        if nr > 0 and hasattr(self.llm, '_ctx') and hasattr(self.llm, 'n_tokens'):
+            try:
+                # Remove tokens from the llama context
+                self.llm._ctx.kv_cache_seq_rm(-1, self.llm.n_tokens - nr, -1)
+                self.llm.n_tokens -= nr
+            except Exception as e:
+                # If we can't clear the KV cache, log it but continue
+                # This might happen if the llama-cpp-python internal API changes
+                import warnings
+                warnings.warn(f"Failed to clear KV cache during backtracking: {e}")
         
         # Clear from the cache as well
         while nr > 0:
@@ -68,8 +76,18 @@ class LlamacppProvider(BaseProvider):
 
     def reset(self) -> None:
         self._evaluated_tokens = 0
-        self.llm.n_tokens = 0  # Reset the token count
-        self.llm._ctx.kv_cache_clear()  # Clear the KV cache
+        
+        # Reset the token count and clear KV cache if available
+        if hasattr(self.llm, 'n_tokens'):
+            self.llm.n_tokens = 0
+        
+        if hasattr(self.llm, '_ctx'):
+            try:
+                self.llm._ctx.kv_cache_clear()
+            except Exception as e:
+                # If we can't clear the KV cache, log it but continue
+                import warnings
+                warnings.warn(f"Failed to clear KV cache during reset: {e}")
         
         # Also reset the cache
         new_cache = LlamaRAMCache(capacity_bytes=self.llm.cache.capacity_bytes)
