@@ -1,6 +1,7 @@
 from .base_provider import BaseProvider
 import torch
 import numpy as np
+import warnings
 from typing import List
 from llama_cpp import Llama, LlamaRAMCache
 
@@ -43,9 +44,12 @@ class LlamacppProvider(BaseProvider):
         
         # Get the logits for the last token
         # eval_logits returns a deque of logits, we want the last one
+        if not hasattr(self.llm, 'eval_logits'):
+            raise RuntimeError("The llama-cpp-python version doesn't support eval_logits. Please update to a newer version.")
+        
         logits_list = list(self.llm.eval_logits)
         if len(logits_list) == 0:
-            raise RuntimeError("No logits available. Make sure the Llama model was initialized with logits_all=True")
+            raise RuntimeError("No logits available. Ensure the Llama model was initialized with logits_all=True and tokens have been evaluated.")
         logits = np.array(logits_list[-1], dtype=np.float32)
         return torch.from_numpy(logits).unsqueeze(0).to(self.device)
 
@@ -65,7 +69,6 @@ class LlamacppProvider(BaseProvider):
             except Exception as e:
                 # If we can't clear the KV cache, log it but continue
                 # This might happen if the llama-cpp-python internal API changes
-                import warnings
                 warnings.warn(f"Failed to clear KV cache during backtracking: {e}")
         
         # Clear from the cache as well
@@ -86,7 +89,6 @@ class LlamacppProvider(BaseProvider):
                 self.llm._ctx.kv_cache_clear()
             except Exception as e:
                 # If we can't clear the KV cache, log it but continue
-                import warnings
                 warnings.warn(f"Failed to clear KV cache during reset: {e}")
         
         # Also reset the cache
